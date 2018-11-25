@@ -13,8 +13,6 @@ spring:
       enabled: true
   application:
     name: apispaceinvaders
-server:
-  port: 80
 
 ---
 spring.profiles: dev
