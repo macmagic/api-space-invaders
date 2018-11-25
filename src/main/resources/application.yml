@@ -1,3 +1,7 @@
+app:
+  name: "Juan Antonio Arroyes"
+  email: "arroyes89@gmail.com"
+
 spring:
   datasource:
       driver-class-name: org.h2.Driver
