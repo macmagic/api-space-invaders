@@ -1,0 +1,27 @@
+{
+  "databaseChangeLog" : [
+    {
+      "changeSet" : {
+        "id" : "schema-creation",
+        "author" : "jarroyes",
+        "changes" : [
+          {
+            "createTable" : {
+              "catalogName" : "db",
+              "columns" : [
+                {
+                  "column" : {
+                    "name" : "id",
+                    "type" : "bigint"
+                  }
+                }
+              ],
+              "schemaName" : "db",
+              "tableName" : "dummy"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
