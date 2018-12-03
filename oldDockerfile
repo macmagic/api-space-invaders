@@ -1,0 +1,15 @@
+FROM openjdk:10-jre-slim
+
+RUN apt-get update && apt-get install wget -y
+
+RUN wget https://services.gradle.org/distributions/gradle-4.9-all.zip \
+	&& mkdir /opt/gradle \
+	&& unzip -d /opt/gradle gradle-4.9-all.zip \
+	&& export PATH=$PATH:/opt/gradle/gradle-4.9/bin
+
+CMD gradle -v
+
+COPY ./build/libs/api-space-invaders-1.0.jar /usr/src/app/
+WORKDIR /usr/src/app
+EXPOSE 8080
+CMD ["java", "-jar", "api-space-invaders-1.0.jar"]

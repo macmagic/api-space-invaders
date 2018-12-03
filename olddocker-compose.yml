@@ -1,0 +1,9 @@
+version: '3'
+services:
+  apijava:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: dockerapi
+    ports:
+      - 80:8080

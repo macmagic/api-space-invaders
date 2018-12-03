@@ -32,6 +32,6 @@ RUN gradle build
 FROM debian:stretch
 RUN apt-get update && apt-get upgrade -y && apt install openjdk-8-jre -y
 EXPOSE 8080
-COPY --from=builder /appsrc/release/* /app
+COPY --from=builder /appsrc/release/api-space-invaders-1.0.jar /app/api-space-invaders-1.0.jar
 WORKDIR /app
-CMD java api-space-invaders-1.0.jar
+CMD ["java", "-jar", "api-space-invaders-1.0.jar"]

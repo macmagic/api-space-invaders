@@ -23,7 +23,7 @@ repositories {
 	mavenCentral()
 }
 
-libsDirName  = './release'
+libsDirName  = '../release'
 
 
 dependencies {
