@@ -1,0 +1,11 @@
+version: '3'
+services:
+  apijava:
+    build:
+     context: ./
+     dockerfile: ./docker/Dockerfile
+    #image: dockerapi
+    volumes:
+      - ./:/app
+    ports:
+      - 9000:8080
