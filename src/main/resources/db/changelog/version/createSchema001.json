@@ -22,7 +22,6 @@
           },
           {
             "createTable" : {
-              "catalogName" : "db",
               "columns" : [
                 {
                   "column" : {
@@ -55,8 +54,16 @@
                   }
                 }
               ],
-              "schemaName" : "db",
               "tableName" : "savegame"
+            }
+          },
+          {
+            "addAutoIncrement": {
+              "columnDataType": "bigint",
+              "columnName": "id",
+              "incrementBy": 1,
+              "startWith": 1,
+              "tableName": "savegame"
             }
           }
         ]
