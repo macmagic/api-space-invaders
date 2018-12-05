@@ -2,7 +2,7 @@
   "databaseChangeLog" : [
     {
       "changeSet" : {
-        "id" : "schema-creation",
+        "id" : "schema-creation1",
         "author" : "jarroyes",
         "changes" : [
           {
@@ -18,6 +18,45 @@
               ],
               "schemaName" : "db",
               "tableName" : "dummy"
+            }
+          },
+          {
+            "createTable" : {
+              "catalogName" : "db",
+              "columns" : [
+                {
+                  "column" : {
+                    "name" : "id",
+                    "type" : "bigint"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "game_id",
+                    "type" : "varchar(200)"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "player_id",
+                    "type" : "varchar(200)"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "maze",
+                    "type" : "text"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "created",
+                    "type" : "datetime"
+                  }
+                }
+              ],
+              "schemaName" : "db",
+              "tableName" : "savegame"
             }
           }
         ]

@@ -1,16 +1,16 @@
 package com.juanarroyes.apispaceinvaders.dto;
 
-public class MazeSizeDto {
+public class MazeSize {
 
     private int height;
 
     private int width;
 
-    public MazeSizeDto() {
+    public MazeSize() {
 
     }
 
-    public MazeSizeDto(int height, int width) {
+    public MazeSize(int height, int width) {
         this.height = height;
         this.width = width;
     }

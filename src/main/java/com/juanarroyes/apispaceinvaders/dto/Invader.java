@@ -2,7 +2,7 @@ package com.juanarroyes.apispaceinvaders.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 
-public class InvaderDto {
+public class Invader {
 
     @JsonAlias(value = "x")
     private int cordX;
@@ -12,11 +12,11 @@ public class InvaderDto {
 
     private boolean neutral;
 
-    public InvaderDto() {
+    public Invader() {
 
     }
 
-    public InvaderDto(int cordX, int cordY, boolean neutral) {
+    public Invader(int cordX, int cordY, boolean neutral) {
         this.cordX = cordX;
         this.cordY = cordY;
         this.neutral = neutral;

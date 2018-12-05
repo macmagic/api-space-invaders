@@ -1,5 +1,6 @@
 package com.juanarroyes.apispaceinvaders.controller;
 
+import com.juanarroyes.apispaceinvaders.dto.Stage;
 import com.juanarroyes.apispaceinvaders.request.MoveRequest;
 import com.juanarroyes.apispaceinvaders.response.MoveResponse;
 import com.juanarroyes.apispaceinvaders.response.NameResponse;
@@ -43,7 +44,18 @@ public class ShipController {
 
     @PostMapping("/move")
     public ResponseEntity<MoveResponse> moveShip(@RequestBody MoveRequest request) {
-        String move = shipService.moveShip(request);
+        Stage stage =  new Stage();
+        stage.setGameId(request.getGame().getId());
+        stage.setPlayerId(request.getPlayer().getId());
+        stage.setMazeSize(request.getBoard().getSize());
+        stage.setActualPosition(request.getPlayer().getPosition());
+        stage.setPreviousPosition(request.getPlayer().getPrevious());
+        stage.setArea(request.getPlayer().getArea());
+        stage.setEnemies(request.getEnemies());
+        stage.setInvaders(request.getInvaders());
+        stage.setWalls(request.getBoard().getWalls());
+
+        String move = shipService.moveShip(stage);
         MoveResponse response = new MoveResponse(move, new Random().nextBoolean());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

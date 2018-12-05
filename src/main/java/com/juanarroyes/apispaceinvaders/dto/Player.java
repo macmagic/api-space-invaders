@@ -1,24 +1,24 @@
 package com.juanarroyes.apispaceinvaders.dto;
 
-public class PlayerDto {
+public class Player {
 
     private String id;
 
     private String name;
 
-    private PositionDto position;
+    private Coordinates position;
 
-    private PreviousDto previous;
+    private Coordinates previous;
 
-    private AreaDto area;
+    private Area area;
 
     private boolean fire;
 
-    public PlayerDto() {
+    public Player() {
 
     }
 
-    public PlayerDto(String id, String name, PositionDto position, PreviousDto previous, AreaDto area, boolean fire) {
+    public Player(String id, String name, Coordinates position, Coordinates previous, Area area, boolean fire) {
         this.id = id;
         this.name = name;
         this.position = position;
@@ -43,27 +43,27 @@ public class PlayerDto {
         this.name = name;
     }
 
-    public PositionDto getPosition() {
+    public Coordinates getPosition() {
         return position;
     }
 
-    public void setPosition(PositionDto position) {
+    public void setPosition(Coordinates position) {
         this.position = position;
     }
 
-    public PreviousDto getPrevious() {
+    public Coordinates getPrevious() {
         return previous;
     }
 
-    public void setPrevious(PreviousDto previous) {
+    public void setPrevious(Coordinates previous) {
         this.previous = previous;
     }
 
-    public AreaDto getArea() {
+    public Area getArea() {
         return area;
     }
 
-    public void setArea(AreaDto area) {
+    public void setArea(Area area) {
         this.area = area;
     }
 

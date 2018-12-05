@@ -1,14 +1,14 @@
 package com.juanarroyes.apispaceinvaders.dto;
 
-public class GameDto {
+public class Game {
 
     private String id;
 
-    public GameDto() {
+    public Game() {
 
     }
 
-    public GameDto(String id) {
+    public Game(String id) {
         this.id = id;
     }
 

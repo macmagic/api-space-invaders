@@ -2,7 +2,7 @@ package com.juanarroyes.apispaceinvaders.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 
-public class WallDto {
+public class Coordinates {
 
     @JsonAlias(value = "x")
     private int cordX;
@@ -10,11 +10,11 @@ public class WallDto {
     @JsonAlias(value = "y")
     private int cordY;
 
-    public WallDto() {
+    public Coordinates() {
 
     }
 
-    public WallDto(int cordX, int cordY) {
+    public Coordinates(int cordX, int cordY) {
         this.cordX = cordX;
         this.cordY = cordY;
     }

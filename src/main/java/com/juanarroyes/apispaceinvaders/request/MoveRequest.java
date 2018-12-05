@@ -7,22 +7,22 @@ import java.util.List;
 
 public class MoveRequest  {
 
-    private GameDto game;
+    private Game game;
 
-    private PlayerDto player;
+    private Player player;
 
-    private BoardDto board;
+    private Board board;
 
     @JsonAlias(value = "players")
-    private List<EnemyDto> enemies;
+    private List<Coordinates> enemies;
 
-    private List<InvaderDto> invaders;
+    private List<Invader> invaders;
 
     public MoveRequest() {
 
     }
 
-    public MoveRequest(GameDto game, PlayerDto player, BoardDto board, List<EnemyDto> enemies, List<InvaderDto> invaders) {
+    public MoveRequest(Game game, Player player, Board board, List<Coordinates> enemies, List<Invader> invaders) {
         this.game = game;
         this.player = player;
         this.board = board;
@@ -30,43 +30,43 @@ public class MoveRequest  {
         this.invaders = invaders;
     }
 
-    public GameDto getGame() {
+    public Game getGame() {
         return game;
     }
 
-    public void setGame(GameDto game) {
+    public void setGame(Game game) {
         this.game = game;
     }
 
-    public PlayerDto getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
-    public void setPlayer(PlayerDto player) {
+    public void setPlayer(Player player) {
         this.player = player;
     }
 
-    public BoardDto getBoard() {
+    public Board getBoard() {
         return board;
     }
 
-    public void setBoard(BoardDto board) {
+    public void setBoard(Board board) {
         this.board = board;
     }
 
-    public List<EnemyDto> getEnemies() {
+    public List<Coordinates> getEnemies() {
         return enemies;
     }
 
-    public void setEnemies(List<EnemyDto> enemies) {
+    public void setEnemies(List<Coordinates> enemies) {
         this.enemies = enemies;
     }
 
-    public List<InvaderDto> getInvaders() {
+    public List<Invader> getInvaders() {
         return invaders;
     }
 
-    public void setInvaders(List<InvaderDto> invaders) {
+    public void setInvaders(List<Invader> invaders) {
         this.invaders = invaders;
     }
 }
