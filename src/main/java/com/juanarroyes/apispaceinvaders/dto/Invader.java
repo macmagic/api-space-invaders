@@ -16,7 +16,7 @@ public class Invader {
 
     }
 
-    public Invader(int cordX, int cordY, boolean neutral) {
+    public Invader(int cordY, int cordX, boolean neutral) {
         this.cordX = cordX;
         this.cordY = cordY;
         this.neutral = neutral;

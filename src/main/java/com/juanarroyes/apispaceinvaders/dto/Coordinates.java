@@ -14,7 +14,7 @@ public class Coordinates {
 
     }
 
-    public Coordinates(int cordX, int cordY) {
+    public Coordinates(int cordY, int cordX) {
         this.cordX = cordX;
         this.cordY = cordY;
     }
@@ -33,5 +33,13 @@ public class Coordinates {
 
     public void setCordY(int cordY) {
         this.cordY = cordY;
+    }
+
+    @Override
+    public String toString() {
+        return "Coordinates {" +
+                "cordX=" + cordX +
+                ", cordY=" + cordY +
+                " }";
     }
 }

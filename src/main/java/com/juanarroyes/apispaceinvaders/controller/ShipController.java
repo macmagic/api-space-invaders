@@ -51,12 +51,13 @@ public class ShipController {
         stage.setActualPosition(request.getPlayer().getPosition());
         stage.setPreviousPosition(request.getPlayer().getPrevious());
         stage.setArea(request.getPlayer().getArea());
+        stage.setFire(request.getPlayer().isFire());
         stage.setEnemies(request.getEnemies());
         stage.setInvaders(request.getInvaders());
         stage.setWalls(request.getBoard().getWalls());
 
         String move = shipService.moveShip(stage);
-        MoveResponse response = new MoveResponse(move, new Random().nextBoolean());
+        MoveResponse response = new MoveResponse(move);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

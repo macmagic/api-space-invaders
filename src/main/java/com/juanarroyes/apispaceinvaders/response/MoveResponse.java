@@ -9,9 +9,8 @@ public class MoveResponse {
 
     }
 
-    public MoveResponse(String move, Boolean fire) {
+    public MoveResponse(String move) {
         this.move = move;
-        this.fire = fire;
     }
 
     public String getMove() {
@@ -20,13 +19,5 @@ public class MoveResponse {
 
     public void setMove(String move) {
         this.move = move;
-    }
-
-    public Boolean getFire() {
-        return fire;
-    }
-
-    public void setFire(Boolean fire) {
-        this.fire = fire;
     }
 }

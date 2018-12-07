@@ -12,6 +12,8 @@ public class Stage {
 
     private Area area;
 
+    private boolean fire;
+
     private List<Coordinates> enemies;
 
     private List<Coordinates> walls;
@@ -30,6 +32,7 @@ public class Stage {
                  String playerId,
                  MazeSize mazeSize,
                  Area area,
+                 boolean fire,
                  List<Coordinates> enemies,
                  List<Coordinates> walls,
                  List<Invader> invaders,
@@ -38,6 +41,7 @@ public class Stage {
         this.gameId = gameId;
         this.playerId = playerId;
         this.area = area;
+        this.fire = fire;
         this.enemies = enemies;
         this.walls = walls;
         this.invaders = invaders;
@@ -71,6 +75,14 @@ public class Stage {
 
     public Area getArea() {
         return area;
+    }
+
+    public boolean isFire() {
+        return fire;
+    }
+
+    public void setFire(boolean fire) {
+        this.fire = fire;
     }
 
     public void setArea(Area area) {
