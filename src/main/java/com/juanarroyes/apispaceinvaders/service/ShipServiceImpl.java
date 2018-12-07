@@ -1,11 +1,13 @@
 package com.juanarroyes.apispaceinvaders.service;
 
+import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.dto.*;
 import com.juanarroyes.apispaceinvaders.exception.SavegameNotFoundException;
 import com.juanarroyes.apispaceinvaders.model.Savegame;
 import com.juanarroyes.apispaceinvaders.repository.SavegameRepository;
 import com.juanarroyes.apispaceinvaders.request.MoveRequest;
-import com.juanarroyes.apispaceinvaders.utils.CellType;
+import com.juanarroyes.apispaceinvaders.utils.CalculationsUtils;
+import com.juanarroyes.apispaceinvaders.utils.DetectorUtils;
 import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
 import com.juanarroyes.apispaceinvaders.utils.ShipUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +81,7 @@ public class ShipServiceImpl {
 
         for(int y = area.getCordY1(); y <= area.getCordY2(); y++) {
             for(int x = area.getCordX1(); x <= area.getCordX2(); x++) {
-                maze[y][x] = (maze[y][x] == null) ? CellType.VIEW : maze[y][x];
+                maze[y][x] = (maze[y][x] == null) ? CellType.VIEWED : maze[y][x];
             }
         }
         maze = mazeUpdate(area);
@@ -93,10 +95,10 @@ public class ShipServiceImpl {
         if(bestEnemyFire != null && bestInvaderFire != null && !fire) {
             // evitar morir aqui!
         } else if(bestEnemyFire != null){
-            String direction = ShipUtils.directionFire(actualPosition, bestEnemyFire);
+            String direction = DetectorUtils.directionOfTarget(actualPosition, bestEnemyFire);
             move = getMovement(direction, fire);
         } else if(bestInvaderFire != null) {
-            String direction = ShipUtils.directionFire(actualPosition, bestInvaderFire);
+            String direction = DetectorUtils.directionOfTarget(actualPosition, bestInvaderFire);
             move = getMovement(direction, fire);
         }
         return move;
@@ -121,11 +123,9 @@ public class ShipServiceImpl {
     public void saveSaveGame(String gameId, String playerId, String[][] maze) {
         Savegame savegame;
         Optional<Savegame> result = savegameRepository.findOneByGameIdAndPlayerId(gameId, playerId);
-        if(result.isPresent()) {
-            savegame = result.get();
-        } else {
-            savegame = new Savegame();
-        }
+
+        savegame = (!result.isPresent()) ? new Savegame() : result.get();
+
         savegame.setGameId(gameId);
         savegame.setPlayerId(playerId);
         byte[] mazeSerializable = SerializationUtils.serialize(maze);
