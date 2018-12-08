@@ -101,6 +101,10 @@ public class ShipServiceImpl {
             String direction = DetectorUtils.directionOfTarget(actualPosition, bestInvaderFire);
             move = getMovement(direction, fire);
         }
+        if(move == null) {
+            List<String> moves = new ArrayList<>(Arrays.asList("up", "right", "left", "down"));
+            move = moves.get(new Random().nextInt(4));
+        }
         return move;
     }
 

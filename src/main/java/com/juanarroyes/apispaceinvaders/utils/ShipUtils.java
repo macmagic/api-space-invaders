@@ -9,6 +9,9 @@ import java.util.List;
 
 public class ShipUtils {
 
+    /*public static String getShipDirection() {
+
+    }*/
 
 
     public static Coordinates getTargetDirectShot(String[][] maze, Area area, Coordinates actualPosition, String targetType) {
