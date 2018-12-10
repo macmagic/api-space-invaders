@@ -18,8 +18,7 @@ public class ShipUtils {
         String[] moves = {Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT};
         String[] availableMoves = DetectorUtils.getAvailableMoves(maze, actualPosition, moves);
 
-        boolean result = Arrays.stream(availableMoves).anyMatch(lastDirection::equals);
-        if(result) {
+        if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {
             return lastDirection;
         } else {
             return availableMoves[new Random().nextInt(availableMoves.length)];
