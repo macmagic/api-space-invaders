@@ -101,6 +101,70 @@ public class DetectorUtils {
         }
     }
 
+    public static String getRecommendedDirection(String[][] maze, Area area, Coordinates actualPosition, String[] availableMoves) {
+        int lastPoints = 0;
+        String moveSelected = null;
+        int idx1 = 0;
+        int idx2 = 0;
+        int idx = 0;
+        int points = 0;
+
+        for(String move : availableMoves) {
+            switch(move) {
+                case Moves.DOWN:
+                    idx1 = actualPosition.getCordY()+1;
+                    idx2 = area.getCordY2();
+                    for(idx = idx1; idx <= idx2; idx++) {
+                        if(maze[idx][actualPosition.getCordX()] != null && maze[idx][actualPosition.getCordX()].equals(CellType.VIEWED)) {
+                            points++;
+                        } else if(maze[idx][actualPosition.getCordX()] == null || !maze[idx][actualPosition.getCordX()].equals(CellType.VIEWED)) {
+                            break;
+                        }
+                    }
+                    break;
+                case Moves.UP:
+                    idx1 = area.getCordY1();
+                    idx2 = actualPosition.getCordY()-1;
+                    for(idx = idx2; idx >= idx1; idx--) {
+                        if(maze[idx][actualPosition.getCordX()] != null && maze[idx][actualPosition.getCordX()].equals(CellType.VIEWED)) {
+                            points++;
+                        } else if(maze[idx][actualPosition.getCordX()] == null || !maze[idx][actualPosition.getCordX()].equals(CellType.VIEWED)) {
+                            break;
+                        }
+                    }
+                    break;
+                case Moves.LEFT:
+                    idx1 = area.getCordX1();
+                    idx2 = actualPosition.getCordX() -1;
+                    for(idx = idx2; idx >= idx1; idx--) {
+                        if(maze[actualPosition.getCordY()][idx] != null && maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
+                            points++;
+                        } else if(maze[actualPosition.getCordY()][idx] == null || !maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
+                            break;
+                        }
+                    }
+                    break;
+                case Moves.RIGHT:
+                    idx1 = actualPosition.getCordX() + 1;
+                    idx2 = area.getCordX2();
+                    for(idx = idx1; idx <= idx2; idx++) {
+                        if(maze[actualPosition.getCordY()][idx] != null && maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
+                            points++;
+                        } else if(maze[actualPosition.getCordY()][idx] == null || !maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
+                            break;
+                        }
+                    }
+                    break;
+            }
+
+            if(lastPoints < points) {
+                moveSelected = move;
+                lastPoints = points;
+            }
+        }
+        return moveSelected;
+    }
+
     public static String recommendedDirection(String[][] maze, Area area, Coordinates actualPosition, String[] moves) {
         int points = 0;
         int lastPoints = 0;

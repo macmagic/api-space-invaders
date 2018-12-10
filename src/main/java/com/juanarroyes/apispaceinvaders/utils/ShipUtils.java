@@ -18,11 +18,12 @@ public class ShipUtils {
         String[] moves = {Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT};
         String[] availableMoves = DetectorUtils.getAvailableMoves(maze, actualPosition, moves);
 
-        String moveRecommended = DetectorUtils.recommendedDirection(maze, area, actualPosition, availableMoves);
-
+        String moveRecommended = DetectorUtils.getRecommendedDirection(maze, area, actualPosition, availableMoves);
         System.out.println(moveRecommended);
 
-        if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {
+        if(moveRecommended != null) {
+            return moveRecommended;
+        } else if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {
             return lastDirection;
         } else {
             return availableMoves[new Random().nextInt(availableMoves.length)];
