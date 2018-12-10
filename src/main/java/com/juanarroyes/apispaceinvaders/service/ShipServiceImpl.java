@@ -31,9 +31,7 @@ public class ShipServiceImpl {
     }
 
     public String moveShip(Stage stageData) {
-        if(!setup) {
-            init(stageData);
-        }
+        init(stageData);
         mazeDiscovery(stageData);
         MazeUtils.drawMaze(maze);
         String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());

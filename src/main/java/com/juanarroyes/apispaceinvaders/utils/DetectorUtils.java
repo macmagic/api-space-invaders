@@ -55,16 +55,18 @@ public class DetectorUtils {
     }
 
     public static List<Coordinates> getPotentialThreats(String[][] maze, Coordinates position, int distance) {
-        int cordY1 = position.getCordY() - distance;
-        int cordX1 = position.getCordX() - distance;
-        int cordY2 = position.getCordY() + distance;
-        int cordX2 = position.getCordX() + distance;
+        int cordY1 = ((position.getCordY() - distance) < 0) ? 0 : position.getCordY() - distance;
+        int cordX1 = ((position.getCordX() - distance) < 0) ? 0 : position.getCordX() - distance;
+        int cordY2 = ((position.getCordY() + distance) >= maze.length) ? maze.length -1 : position.getCordY() + distance;
+        int cordX2 = ((position.getCordX() + distance) >= maze[0].length) ? maze.length - 1 : position.getCordX() + distance;
         List<Coordinates> threats = new ArrayList<>();
 
         for(int y = cordY1; y <= cordY2; y++) {
             for(int x = cordX1; x <= cordX2; x++) {
                 String cellValue = maze[y][x];
-                if(cellValue.equals(CellType.ENEMY) || cellValue.equals(CellType.INVADER)) {
+                if(cellValue == null) {
+                    continue;
+                } else if(cellValue.equals(CellType.ENEMY) || cellValue.equals(CellType.INVADER)) {
                     threats.add(new Coordinates(y, x));
                 }
             }
@@ -89,9 +91,9 @@ public class DetectorUtils {
     public static boolean checkMoveIsAvailable(String[][] maze, Coordinates actualPosition, String move) {
         switch(move) {
             case Moves.DOWN:
-                return (!maze[actualPosition.getCordY()+1][actualPosition.getCordX()].equals(CellType.WALL));
+                return (maze[actualPosition.getCordY()+1][actualPosition.getCordX()] !=null && !maze[actualPosition.getCordY()+1][actualPosition.getCordX()].equals(CellType.WALL));
             case Moves.UP:
-                return (!maze[actualPosition.getCordY()-1][actualPosition.getCordX()].equals(CellType.WALL));
+                return (maze[actualPosition.getCordY()-1][actualPosition.getCordX()] != null && !maze[actualPosition.getCordY()-1][actualPosition.getCordX()].equals(CellType.WALL));
             case Moves.LEFT:
                 return (!maze[actualPosition.getCordY()][actualPosition.getCordX()-1].equals(CellType.WALL));
             case Moves.RIGHT:

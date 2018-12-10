@@ -47,9 +47,9 @@ public class ShipUtils {
         }
 
         for(int y = area.getCordY1(); y <= area.getCordY2(); y++) {
-            if(maze[y][actualPosition.getCordX()].equals(targetType)) {
+            if(maze[y][actualPosition.getCordX()] != null && maze[y][actualPosition.getCordX()].equals(targetType)) {
                 coordinatesList.add(new Coordinates(y, actualPosition.getCordX()));
-            } else if(maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
+            } else if(maze[y][actualPosition.getCordX()] != null && maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
                 if(actualPosition.getCordY() < y) {
                     break;
                 } else if(!coordinatesList.isEmpty()) {
