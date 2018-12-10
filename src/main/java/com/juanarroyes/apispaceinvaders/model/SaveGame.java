@@ -10,7 +10,7 @@ import java.util.Date;
 @Entity
 @Table(name = "savegame")
 @EntityListeners(AuditingEntityListener.class)
-public class Savegame {
+public class SaveGame {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class Savegame {
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
 
-    public Savegame() {
+    public SaveGame() {
 
     }
 

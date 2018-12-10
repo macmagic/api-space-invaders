@@ -2,9 +2,9 @@ package com.juanarroyes.apispaceinvaders.service;
 
 import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.dto.*;
-import com.juanarroyes.apispaceinvaders.exception.SavegameNotFoundException;
-import com.juanarroyes.apispaceinvaders.model.Savegame;
-import com.juanarroyes.apispaceinvaders.repository.SavegameRepository;
+import com.juanarroyes.apispaceinvaders.exception.SaveGameNotFoundException;
+import com.juanarroyes.apispaceinvaders.model.SaveGame;
+import com.juanarroyes.apispaceinvaders.repository.SaveGameRepository;
 import com.juanarroyes.apispaceinvaders.utils.DetectorUtils;
 import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
 import com.juanarroyes.apispaceinvaders.utils.ShipUtils;
@@ -21,23 +21,39 @@ public class ShipServiceImpl {
 
     private String[][] maze;
 
-    private SavegameRepository savegameRepository;
+    private SaveGameRepository saveGameRepository;
 
     private boolean setup = false;
 
     @Autowired
-    public ShipServiceImpl(SavegameRepository savegameRepository) {
-        this.savegameRepository = savegameRepository;
+    public ShipServiceImpl(SaveGameRepository saveGameRepository) {
+        this.saveGameRepository = saveGameRepository;
     }
 
     public String moveShip(Stage stageData) {
-        init(stageData);
+        try {
+            SaveGame saveGame = getSaveGameByGameIdAndPlayer(stageData.getGameId(), stageData.getPlayerId());
+            byte[] serializedMaze = saveGame.getMaze().getBytes();
+            maze = (String[][]) SerializationUtils.deserialize(serializedMaze);
+        } catch(SaveGameNotFoundException e) {
+            init(stageData);
+        }
+
         mazeDiscovery(stageData);
         MazeUtils.drawMaze(maze);
         String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
         System.out.println("Move is: " + move);
         clearMaze();
+        saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze);
         return move;
+    }
+
+    public SaveGame getSaveGameByPlayerIdAndGameId(String gameId, String playerId) throws SaveGameNotFoundException {
+        Optional<SaveGame> result = saveGameRepository.findOneByGameIdAndPlayerId(gameId, playerId);
+        if(!result.isPresent()) {
+            throw new SaveGameNotFoundException("Cannot find this save-game by game-id: " + gameId + " and player-id: " + playerId);
+        }
+        return result.get();
     }
 
     private void init(Stage stageData) {
@@ -104,22 +120,18 @@ public class ShipServiceImpl {
 
 
     public void saveSaveGame(String gameId, String playerId, String[][] maze) {
-        Savegame savegame;
-        Optional<Savegame> result = savegameRepository.findOneByGameIdAndPlayerId(gameId, playerId);
-
-        savegame = (!result.isPresent()) ? new Savegame() : result.get();
-
-        savegame.setGameId(gameId);
-        savegame.setPlayerId(playerId);
+        SaveGame saveGame = new SaveGame();
+        saveGame.setGameId(gameId);
+        saveGame.setPlayerId(playerId);
         byte[] mazeSerializable = SerializationUtils.serialize(maze);
-        savegame.setMaze(mazeSerializable.toString());
-        savegameRepository.save(savegame);
+        saveGame.setMaze(mazeSerializable.toString());
+        saveGameRepository.save(saveGame);
     }
 
-    public Savegame getSaveGameByGameIdAndPlayer(String gameId, String playerId) throws SavegameNotFoundException {
-        Optional<Savegame> result = savegameRepository.findOneByGameIdAndPlayerId(gameId, playerId);
+    public SaveGame getSaveGameByGameIdAndPlayer(String gameId, String playerId) throws SaveGameNotFoundException {
+        Optional<SaveGame> result = saveGameRepository.findOneByGameIdAndPlayerId(gameId, playerId);
         if(!result.isPresent()) {
-            throw new SavegameNotFoundException("Not found");
+            throw new SaveGameNotFoundException("Not found");
         }
         return result.get();
     }

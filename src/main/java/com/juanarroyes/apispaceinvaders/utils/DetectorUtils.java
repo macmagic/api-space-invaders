@@ -95,9 +95,9 @@ public class DetectorUtils {
             case Moves.UP:
                 return (maze[actualPosition.getCordY()-1][actualPosition.getCordX()] != null && !maze[actualPosition.getCordY()-1][actualPosition.getCordX()].equals(CellType.WALL));
             case Moves.LEFT:
-                return (!maze[actualPosition.getCordY()][actualPosition.getCordX()-1].equals(CellType.WALL));
+                return (maze[actualPosition.getCordY()][actualPosition.getCordX()-1] != null && !maze[actualPosition.getCordY()][actualPosition.getCordX()-1].equals(CellType.WALL));
             case Moves.RIGHT:
-                return (!maze[actualPosition.getCordY()][actualPosition.getCordX()+1].equals(CellType.WALL));
+                return (maze[actualPosition.getCordY()][actualPosition.getCordX()+1] != null && !maze[actualPosition.getCordY()][actualPosition.getCordX()+1].equals(CellType.WALL));
             default:
                 return false;
         }

@@ -25,8 +25,10 @@ public class ShipUtils {
             return moveRecommended;
         } else if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {
             return lastDirection;
-        } else {
+        } else if(availableMoves.length > 0){
             return availableMoves[new Random().nextInt(availableMoves.length)];
+        } else {
+            return moves[new Random().nextInt(moves.length)];
         }
     }
 
