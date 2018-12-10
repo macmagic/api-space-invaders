@@ -5,8 +5,6 @@ import com.juanarroyes.apispaceinvaders.dto.*;
 import com.juanarroyes.apispaceinvaders.exception.SavegameNotFoundException;
 import com.juanarroyes.apispaceinvaders.model.Savegame;
 import com.juanarroyes.apispaceinvaders.repository.SavegameRepository;
-import com.juanarroyes.apispaceinvaders.request.MoveRequest;
-import com.juanarroyes.apispaceinvaders.utils.CalculationsUtils;
 import com.juanarroyes.apispaceinvaders.utils.DetectorUtils;
 import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
 import com.juanarroyes.apispaceinvaders.utils.ShipUtils;
@@ -15,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SerializationUtils;
 
-import java.io.Serializable;
 import java.util.*;
 
 @Slf4j
@@ -40,7 +37,6 @@ public class ShipServiceImpl {
         mazeDiscovery(stageData);
         MazeUtils.drawMaze(maze);
         String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
-        //saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze);
         System.out.println("Move is: " + move);
         clearMaze();
         return move;
@@ -88,23 +84,16 @@ public class ShipServiceImpl {
         Coordinates bestEnemyFire = ShipUtils.getTargetDirectShot(maze, area, actualPosition, CellType.ENEMY);
         Coordinates bestInvaderFire = ShipUtils.getTargetDirectShot(maze, area, actualPosition, CellType.INVADER);
 
-        String moveShip = ShipUtils.getShipTripDirection(maze, area, actualPosition, lastPosition);
-        return moveShip;
-
-        /*if(bestEnemyFire != null && bestInvaderFire != null && !fire) {
-            // evitar morir aqui!
-        } else if(bestEnemyFire != null){
+        if(fire && bestEnemyFire != null) {
             String direction = DetectorUtils.directionOfTarget(actualPosition, bestEnemyFire);
             move = getMovement(direction, fire);
-        } else if(bestInvaderFire != null) {
+        } else if(fire && bestInvaderFire != null) {
             String direction = DetectorUtils.directionOfTarget(actualPosition, bestInvaderFire);
             move = getMovement(direction, fire);
+        } else {
+            move = ShipUtils.getShipTripDirection(maze, area, actualPosition, lastPosition);
         }
-        if(move == null) {
-            List<String> moves = new ArrayList<>(Arrays.asList("up", "right", "left", "down"));
-            move = moves.get(new Random().nextInt(4));
-        }
-        return move;*/
+        return move;
     }
 
     private String getMovement(String direction, boolean fire) {

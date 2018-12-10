@@ -15,11 +15,11 @@ public class ShipUtils {
     public static String getShipTripDirection(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition) {
 
         String lastDirection = DetectorUtils.directionOfTarget(lastPosition, actualPosition);
+        String enemyDirection = runAwayFromEnemies(maze, actualPosition);
         String[] moves = {Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT};
         String[] availableMoves = DetectorUtils.getAvailableMoves(maze, actualPosition, moves);
 
         String moveRecommended = DetectorUtils.getRecommendedDirection(maze, area, actualPosition, availableMoves);
-        System.out.println(moveRecommended);
 
         if(moveRecommended != null) {
             return moveRecommended;
@@ -29,7 +29,6 @@ public class ShipUtils {
             return availableMoves[new Random().nextInt(availableMoves.length)];
         }
     }
-
 
     public static Coordinates getTargetDirectShot(String[][] maze, Area area, Coordinates actualPosition, String targetType) {
         Coordinates enemy = null;
@@ -70,5 +69,25 @@ public class ShipUtils {
 
         System.out.println("The enemy is: " + ((enemy != null) ? enemy.toString() : "null"));
         return enemy;
+    }
+
+    public static String runAwayFromEnemies(String[][] maze, Coordinates actualPosition) {
+        String enemyDirection = null;
+        int lastDistance = 0;
+
+        List<Coordinates> enemies = DetectorUtils.getPotentialThreats(maze, actualPosition, 2);
+        for(Coordinates enemy : enemies) {
+            int distance = DetectorUtils.distanceOfTwoObjects(actualPosition, enemy);
+            String direction = DetectorUtils.directionOfTarget(actualPosition, enemy);
+
+            if(lastDistance == 0) {
+                lastDistance = distance;
+                enemyDirection = direction;
+            } else if(lastDistance > distance) {
+                lastDistance = distance;
+                enemyDirection = direction;
+            }
+        }
+        return enemyDirection;
     }
 }
