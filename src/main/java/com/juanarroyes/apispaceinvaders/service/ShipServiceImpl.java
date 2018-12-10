@@ -42,6 +42,7 @@ public class ShipServiceImpl {
         String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
         //saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze);
         System.out.println("Move is: " + move);
+        clearMaze();
         return move;
     }
 
@@ -80,7 +81,6 @@ public class ShipServiceImpl {
                 maze[y][x] = (maze[y][x] == null) ? CellType.VIEWED : maze[y][x];
             }
         }
-        maze = mazeUpdate(area);
     }
 
     private String getDecision(Area area, Coordinates actualPosition, Coordinates lastPosition, boolean fire) {
@@ -137,7 +137,7 @@ public class ShipServiceImpl {
         return result.get();
     }
 
-    private String[][] mazeUpdate(Area area) {
+    private void clearMaze() {
         int rowCount = maze.length;
         int colCount = maze[0].length;
 
@@ -146,6 +146,5 @@ public class ShipServiceImpl {
                 maze[y][x] = (maze[y][x] != null && maze[y][x].equals(CellType.WALL)) ? CellType.WALL : null;
             }
         }
-        return maze;
     }
 }
