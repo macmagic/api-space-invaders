@@ -41,6 +41,7 @@ public class ShipServiceImpl {
         MazeUtils.drawMaze(maze);
         String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
         //saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze);
+        System.out.println("Move is: " + move);
         return move;
     }
 
