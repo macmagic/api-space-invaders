@@ -40,7 +40,7 @@ public class ShipServiceImpl {
         mazeDiscovery(stageData);
         MazeUtils.drawMaze(maze);
         String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
-        saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze);
+        //saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze);
         return move;
     }
 
@@ -142,9 +142,7 @@ public class ShipServiceImpl {
 
         for(int y = 0; y < rowCount; y++) {
             for(int x = 0; x < colCount; x++) {
-                if((y < area.getCordY1() || y > area.getCordY2()) || (x < area.getCordX1() || x > area.getCordX2())) {
-                    maze[y][x] = (maze[y][x] != null && maze[y][x].equals(CellType.WALL)) ? CellType.WALL : null;
-                }
+                maze[y][x] = (maze[y][x] != null && maze[y][x].equals(CellType.WALL)) ? CellType.WALL : null;
             }
         }
         return maze;
