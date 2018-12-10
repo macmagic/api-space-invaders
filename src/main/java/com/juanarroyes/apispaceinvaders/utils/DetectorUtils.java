@@ -2,6 +2,7 @@ package com.juanarroyes.apispaceinvaders.utils;
 
 import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.constants.Moves;
+import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
 
 import java.util.ArrayList;
@@ -98,5 +99,61 @@ public class DetectorUtils {
             default:
                 return false;
         }
+    }
+
+    public static String recommendedDirection(String[][] maze, Area area, Coordinates actualPosition, String[] moves) {
+        int points = 0;
+        int lastPoints = 0;
+        String moveRecommended = null;
+
+        int z1 = 0;
+        int z2 = 0;
+        int x = 0;
+        int y = 0;
+
+        for(String move :  moves) {
+            switch(move) {
+                case Moves.DOWN:
+                    z1 = actualPosition.getCordY();
+                    z2 = area.getCordY2();
+                    break;
+                case Moves.UP:
+                    z1 = area.getCordY1();
+                    z2 = actualPosition.getCordY();
+                    break;
+                case Moves.LEFT:
+                    z1 = area.getCordX1();
+                    z2 = actualPosition.getCordX();
+                    break;
+                case Moves.RIGHT:
+                    z1 = actualPosition.getCordX();
+                    z2 = area.getCordX2();
+                    break;
+            }
+
+            if(move.equals(Moves.DOWN) || move.equals(Moves.UP)) {
+                x = actualPosition.getCordX();
+                for(y = z1; y <= z2; y++) {
+                    if(maze[y][x].equals("V")) {
+                        points++;
+                    }
+                }
+                if(lastPoints < points) {
+                    moveRecommended = move;
+                }
+            } else if(move.equals(Moves.LEFT) || move.equals(Moves.RIGHT)) {
+                y = actualPosition.getCordY();
+                for(x = z1; x <= z2; x++) {
+                    if(maze[y][x].equals("V")) {
+                        points++;
+                    }
+                }
+                if(lastPoints < points) {
+                    moveRecommended = move;
+                }
+            }
+        }
+
+        return moveRecommended;
     }
 }
