@@ -41,9 +41,9 @@ public class DetectorUtils {
      * @return
      */
     public static String directionOfTarget(Coordinates ship, Coordinates target) {
-        if (ship.getCordY() == target.getCordY() && (ship.getCordX() - target.getCordX()) > 0) {
+        if (ship.getCordY() == target.getCordY() && (ship.getCordX() - target.getCordX()) < 0) {
             return Moves.RIGHT;
-        } else if (ship.getCordY() == target.getCordY() && (ship.getCordX() - target.getCordX()) < 0) {
+        } else if (ship.getCordY() == target.getCordY() && (ship.getCordX() - target.getCordX()) > 0) {
             return Moves.LEFT;
         } else if (ship.getCordX() == target.getCordX() && (ship.getCordY() - target.getCordY()) > 0) {
             return Moves.UP;
@@ -71,4 +71,32 @@ public class DetectorUtils {
         return threats;
     }
 
+    public static String[] getAvailableMoves(String[][] maze, Coordinates actualPosition, String[] moves) {
+        List<String> availiableMovesList = new ArrayList<>();
+
+        for(String move :  moves) {
+            if(checkMoveIsAvailable(maze, actualPosition, move)) {
+                availiableMovesList.add(move);
+            }
+        }
+
+        String[] availiableMovesArr = new String[availiableMovesList.size()];
+        availiableMovesList.toArray(availiableMovesArr);
+        return availiableMovesArr;
+    }
+
+    public static boolean checkMoveIsAvailable(String[][] maze, Coordinates actualPosition, String move) {
+        switch(move) {
+            case Moves.DOWN:
+                return (!maze[actualPosition.getCordY()+1][actualPosition.getCordX()].equals(CellType.WALL));
+            case Moves.UP:
+                return (!maze[actualPosition.getCordY()-1][actualPosition.getCordX()].equals(CellType.WALL));
+            case Moves.LEFT:
+                return (!maze[actualPosition.getCordY()][actualPosition.getCordX()-1].equals(CellType.WALL));
+            case Moves.RIGHT:
+                return (!maze[actualPosition.getCordY()][actualPosition.getCordX()+1].equals(CellType.WALL));
+            default:
+                return false;
+        }
+    }
 }

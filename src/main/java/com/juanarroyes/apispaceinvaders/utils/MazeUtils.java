@@ -29,4 +29,23 @@ public class MazeUtils {
 
         System.out.println("-----------------------------------------------------");
     }
+
+    public static String[][] addLimitWalls(String[][] maze, String cellType) {
+
+        int rowCount = maze.length;
+        int colCount = maze[0].length;
+
+        for(int y = 0; y < rowCount; y++) {
+            if(y == 0 || y == rowCount-1) {
+                for(int x = 0; x < colCount; x++) {
+                    maze[y][x] = cellType;
+                }
+            } else {
+                maze[y][0] = cellType;
+                maze[y][colCount-1] = cellType;
+            }
+        }
+
+        return maze;
+    }
 }

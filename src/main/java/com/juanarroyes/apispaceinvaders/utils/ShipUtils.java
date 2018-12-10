@@ -1,17 +1,30 @@
 package com.juanarroyes.apispaceinvaders.utils;
 
 import com.juanarroyes.apispaceinvaders.constants.CellType;
+import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class ShipUtils {
 
-    /*public static String getShipDirection() {
+    public static String getShipTripDirection(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition) {
 
-    }*/
+        String lastDirection = DetectorUtils.directionOfTarget(lastPosition, actualPosition);
+        String[] moves = {Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT};
+        String[] availableMoves = DetectorUtils.getAvailableMoves(maze, actualPosition, moves);
+
+        boolean result = Arrays.stream(availableMoves).anyMatch(lastDirection::equals);
+        if(result) {
+            return lastDirection;
+        } else {
+            return availableMoves[new Random().nextInt(availableMoves.length)];
+        }
+    }
 
 
     public static Coordinates getTargetDirectShot(String[][] maze, Area area, Coordinates actualPosition, String targetType) {

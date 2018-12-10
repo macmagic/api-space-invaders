@@ -22,15 +22,7 @@ import java.util.*;
 @Service
 public class ShipServiceImpl {
 
-    /*private static final String CELL_WALL = "W";
-    private static final String CELL_ENEMY = "E";
-    private static final String CELL_INVADER = "I";
-    private static final String CELL_INVADER_NEUTRAL = "N";
-    private static final String CELL_POSITION = "P";
-    private static final String CELL_VIEW = "V";*/
-
     private String[][] maze;
-    private String[][] viewArea;
 
     private SavegameRepository savegameRepository;
 
@@ -47,7 +39,7 @@ public class ShipServiceImpl {
         }
         mazeDiscovery(stageData);
         MazeUtils.drawMaze(maze);
-        String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.isFire());
+        String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
         saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze);
         return move;
     }
@@ -55,13 +47,16 @@ public class ShipServiceImpl {
     private void init(Stage stageData) {
         int height = stageData.getMazeSize().getHeight();
         int width = stageData.getMazeSize().getWidth();
-        maze = new String[width][height];
+        maze = new String[height][width];
+        maze = MazeUtils.addLimitWalls(maze, CellType.WALL);
         setup = true;
     }
 
     private void mazeDiscovery(Stage stageData) {
         Area area = stageData.getArea();
-        maze[stageData.getActualPosition().getCordX()][stageData.getActualPosition().getCordY()] = CellType.POSITION;
+        maze[stageData.getActualPosition().getCordY()][stageData.getActualPosition().getCordX()] = CellType.POSITION;
+
+        maze[stageData.getPreviousPosition().getCordY()][stageData.getPreviousPosition().getCordX()] = CellType.LAST_POSITION;
 
         // Add walls to area
         List<Coordinates> walls = stageData.getWalls();
@@ -87,12 +82,15 @@ public class ShipServiceImpl {
         maze = mazeUpdate(area);
     }
 
-    private String getDecision(Area area, Coordinates actualPosition, boolean fire) {
+    private String getDecision(Area area, Coordinates actualPosition, Coordinates lastPosition, boolean fire) {
         String move = null;
         Coordinates bestEnemyFire = ShipUtils.getTargetDirectShot(maze, area, actualPosition, CellType.ENEMY);
         Coordinates bestInvaderFire = ShipUtils.getTargetDirectShot(maze, area, actualPosition, CellType.INVADER);
 
-        if(bestEnemyFire != null && bestInvaderFire != null && !fire) {
+        String moveShip = ShipUtils.getShipTripDirection(maze, area, actualPosition, lastPosition);
+        return moveShip;
+
+        /*if(bestEnemyFire != null && bestInvaderFire != null && !fire) {
             // evitar morir aqui!
         } else if(bestEnemyFire != null){
             String direction = DetectorUtils.directionOfTarget(actualPosition, bestEnemyFire);
@@ -105,7 +103,7 @@ public class ShipServiceImpl {
             List<String> moves = new ArrayList<>(Arrays.asList("up", "right", "left", "down"));
             move = moves.get(new Random().nextInt(4));
         }
-        return move;
+        return move;*/
     }
 
     private String getMovement(String direction, boolean fire) {
@@ -116,13 +114,6 @@ public class ShipServiceImpl {
         return movement + direction;
     }
 
-    private Coordinates getEnemyDirectShot(Area area, Coordinates actualPosition) {
-        for(int x = area.getCordX1(); x<=area.getCordX2(); x++) {
-            //if(maze[x][actualPosition.getCordY()]
-        }
-        return null;
-
-    }
 
     public void saveSaveGame(String gameId, String playerId, String[][] maze) {
         Savegame savegame;
@@ -151,7 +142,7 @@ public class ShipServiceImpl {
 
         for(int y = 0; y < rowCount; y++) {
             for(int x = 0; x < colCount; x++) {
-                if((y < area.getCordX1() || y > area.getCordX2()) || (x < area.getCordY1() || x > area.getCordY2())) {
+                if((y < area.getCordY1() || y > area.getCordY2()) || (x < area.getCordX1() || x > area.getCordX2())) {
                     maze[y][x] = (maze[y][x] != null && maze[y][x].equals(CellType.WALL)) ? CellType.WALL : null;
                 }
             }
