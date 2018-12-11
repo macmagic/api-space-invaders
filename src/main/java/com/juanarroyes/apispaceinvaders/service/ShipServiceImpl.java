@@ -1,8 +1,13 @@
 package com.juanarroyes.apispaceinvaders.service;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.dto.*;
 import com.juanarroyes.apispaceinvaders.exception.SaveGameNotFoundException;
+import com.juanarroyes.apispaceinvaders.json.MazeObjects;
 import com.juanarroyes.apispaceinvaders.model.SaveGame;
 import com.juanarroyes.apispaceinvaders.repository.SaveGameRepository;
 import com.juanarroyes.apispaceinvaders.utils.DetectorUtils;
@@ -13,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SerializationUtils;
 
+import java.io.IOException;
 import java.util.*;
 
 @Slf4j
@@ -23,28 +29,35 @@ public class ShipServiceImpl {
 
     private SaveGameRepository saveGameRepository;
 
+    private ObjectMapper mapper;
+
     private boolean setup = false;
 
     @Autowired
     public ShipServiceImpl(SaveGameRepository saveGameRepository) {
         this.saveGameRepository = saveGameRepository;
+        this.mapper = new ObjectMapper();
     }
 
     public String moveShip(Stage stageData) {
+        Long saveGameId = null;
         try {
             SaveGame saveGame = getSaveGameByGameIdAndPlayer(stageData.getGameId(), stageData.getPlayerId());
-            byte[] serializedMaze = saveGame.getMaze().getBytes();
-            maze = (String[][]) SerializationUtils.deserialize(serializedMaze);
-        } catch(SaveGameNotFoundException e) {
+            saveGameId = saveGame.getId();
+            MazeObjects objects = mapper.readValue(saveGame.getMazeObjectsDiscovered(), MazeObjects.class);
+            maze = restoreMazeFromSaveGame(saveGame.getMazeWidth(), saveGame.getMazeHeight(), objects.getObjects());
+        } catch(JsonParseException | JsonMappingException e) {
+            log.error("Error when try recovery the maze", e);
+        } catch(IOException | SaveGameNotFoundException e) {
             init(stageData);
         }
-
+        //init(stageData);
         mazeDiscovery(stageData);
         MazeUtils.drawMaze(maze);
         String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
         System.out.println("Move is: " + move);
         clearMaze();
-        saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze);
+        saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze,saveGameId);
         return move;
     }
 
@@ -118,13 +131,30 @@ public class ShipServiceImpl {
         return movement + direction;
     }
 
-
     public void saveSaveGame(String gameId, String playerId, String[][] maze) {
+        saveSaveGame(gameId, playerId, maze, null);
+    }
+
+    public void saveSaveGame(String gameId, String playerId, String[][] maze, Long saveGameId) {
         SaveGame saveGame = new SaveGame();
+        if(saveGameId != null) {
+            saveGame.setId(saveGameId);
+        }
         saveGame.setGameId(gameId);
         saveGame.setPlayerId(playerId);
-        byte[] mazeSerializable = SerializationUtils.serialize(maze);
-        saveGame.setMaze(mazeSerializable.toString());
+        saveGame.setMazeHeight(maze[0].length);
+        saveGame.setMazeWidth(maze.length);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        MazeObjects mazeObjects = new MazeObjects(storeObjectsFromMaze(maze));
+        String objectsSerialized = null;
+        try {
+            objectsSerialized = objectMapper.writeValueAsString(mazeObjects);
+        } catch(JsonProcessingException e) {
+            log.error("Error when convert object to json: " + e.getMessage(), e);
+        }
+
+        saveGame.setMazeObjectsDiscovered(objectsSerialized);
         saveGameRepository.save(saveGame);
     }
 
@@ -145,5 +175,34 @@ public class ShipServiceImpl {
                 maze[y][x] = (maze[y][x] != null && maze[y][x].equals(CellType.WALL)) ? CellType.WALL : null;
             }
         }
+    }
+
+    private List<Map<String, Coordinates>> storeObjectsFromMaze(String[][] maze) {
+        int rowCount = maze.length;
+        int colCount = maze[0].length;
+        List<Map<String, Coordinates>> objects = new ArrayList<>();
+
+        for(int y = 0; y < rowCount; y++) {
+            for(int x = 0; x < colCount; x++) {
+                if(maze[y][x] != null && maze[y][x].equals(CellType.WALL)) {
+                    Map<String, Coordinates> item = new HashMap<>();
+                    item.put(CellType.WALL, new Coordinates(y, x));
+                    objects.add(item);
+                }
+            }
+        }
+
+        return objects;
+    }
+
+    private String[][] restoreMazeFromSaveGame(Integer width, Integer height, List<Map<String, Coordinates>> objectsDiscovered) {
+        String[][] mazeRecovery = new String[height][width];
+
+        for(Map<String, Coordinates> item : objectsDiscovered) {
+            String cellType = (String) item.keySet().toArray()[0];
+            Coordinates coordinates = item.get(cellType);
+            mazeRecovery[coordinates.getCordY()][coordinates.getCordX()] = cellType;
+        }
+        return mazeRecovery;
     }
 }

@@ -43,7 +43,19 @@
                 },
                 {
                   "column" : {
-                    "name" : "maze",
+                    "name" : "maze_height",
+                    "type" : "int"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "maze_width",
+                    "type" : "int"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "maze_objects_discovered",
                     "type" : "text"
                   }
                 },

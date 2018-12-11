@@ -22,7 +22,14 @@ public class SaveGame {
     @Column(name = "player_id")
     private String playerId;
 
-    private String maze;
+    @Column(name = "maze_height")
+    private Integer mazeHeight;
+
+    @Column(name = "maze_width")
+    private Integer mazeWidth;
+
+    @Column(name = "maze_objects_discovered")
+    private String mazeObjectsDiscovered;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -56,11 +63,27 @@ public class SaveGame {
         this.playerId = playerId;
     }
 
-    public String getMaze() {
-        return maze;
+    public Integer getMazeHeight() {
+        return mazeHeight;
     }
 
-    public void setMaze(String maze) {
-        this.maze = maze;
+    public void setMazeHeight(Integer mazeHeight) {
+        this.mazeHeight = mazeHeight;
+    }
+
+    public Integer getMazeWidth() {
+        return mazeWidth;
+    }
+
+    public void setMazeWidth(Integer mazeWidth) {
+        this.mazeWidth = mazeWidth;
+    }
+
+    public String getMazeObjectsDiscovered() {
+        return mazeObjectsDiscovered;
+    }
+
+    public void setMazeObjectsDiscovered(String mazeObjectsDiscovered) {
+        this.mazeObjectsDiscovered = mazeObjectsDiscovered;
     }
 }
