@@ -64,8 +64,6 @@ public class Commander {
         String[] availableMoves = Detector.getAvailableMoves(maze, actualPosition, MOVES, enemyDirection);
         String moveRecommended = Detector.getRecommendedDirection(maze, area, actualPosition, availableMoves);
 
-        int index = Arrays.asList(availableMoves).indexOf(enemyDirection);
-
         if(moveRecommended != null) {
             return moveRecommended;
         } else if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {

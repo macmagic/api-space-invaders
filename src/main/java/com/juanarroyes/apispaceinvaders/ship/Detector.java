@@ -37,6 +37,51 @@ public class Detector {
         return (distance < 0) ? distance * -1 : distance;
     }
 
+    public static boolean isObstacleBetweenTwoObjects(String[][] maze, Coordinates source, Coordinates target) {
+        int y1;
+        int y2;
+        int x1;
+        int x2;
+
+        y1 = ((target.getCordY() - source.getCordY()) < 0) ? target.getCordY() : source.getCordY();
+        y2 = ((target.getCordY() - source.getCordY()) < 0) ? source.getCordY() : target.getCordY();
+        x1 = ((target.getCordX() - source.getCordX()) < 0) ? target.getCordX() : source.getCordX();
+        x2 = ((target.getCordX() - source.getCordX()) < 0) ? source.getCordX() : target.getCordX();
+
+        if(target.getCordX() == source.getCordX()) {
+            if((target.getCordY() - source.getCordY()) < 0) {
+                for(int y = y2; y>=y1; y--) {
+                    if(maze[y][target.getCordX()] != null && maze[y][target.getCordX()].equals(CellType.WALL)) {
+                        return true;
+                    }
+                }
+            } else if((target.getCordY() - source.getCordY()) > 0) {
+                for(int y = y1; y<=y2; y++) {
+                    if(maze[y][target.getCordX()] != null && maze[y][target.getCordX()].equals(CellType.WALL)) {
+                        return true;
+                    }
+                }
+            }
+        } else if(target.getCordY() == source.getCordY()) {
+            if((target.getCordX() - source.getCordX()) < 0) {
+                for(int x = x2; x>=x1; x--) {
+                    if(maze[target.getCordY()][x] != null && maze[target.getCordY()][x].equals(CellType.WALL)) {
+                        return true;
+                    }
+                }
+            } else if((target.getCordY() - source.getCordY()) > 0) {
+                for(int x = x1; x<=x2; x++) {
+                    if(maze[target.getCordY()][x] != null && maze[target.getCordY()][x].equals(CellType.WALL)) {
+                        return true;
+                    }
+                }
+            }
+        } else {
+
+        }
+        return false;
+    }
+
     /**
      *
      * @param ship
@@ -83,7 +128,7 @@ public class Detector {
 
         for(Coordinates enemy :  threats) {
             int distance = distanceOfTwoObjects(actualPosition, enemy);
-            if(bestEnemyFollow == null || distance <= lastDistance) {
+            if((bestEnemyFollow == null || distance <= lastDistance) && !Detector.isObstacleBetweenTwoObjects(maze, actualPosition, enemy)) {
                 lastDistance = distance;
                 bestEnemyFollow = enemy;
             }
