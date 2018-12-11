@@ -12,12 +12,25 @@ import java.util.Random;
 
 public class ShipUtils {
 
+    private static final String[] MOVES = { Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT };
+
+    public static String getShipTripDirectionNEW(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition) {
+        String lastDirection = DetectorUtils.directionOfTarget(lastPosition, actualPosition);
+        String enemyDirection = runAwayFromEnemies(maze, actualPosition);
+        String[] availableMoves = DetectorUtils.getAvailableMoves(maze, actualPosition, MOVES);
+        String moveRecommended = DetectorUtils.getRecommendedDirection(maze, area, actualPosition, availableMoves);
+        String movePersecution = getMovePersecution(maze, area, actualPosition);
+
+        //if(moveRecommended != null && )
+
+        return null;
+    }
+
     public static String getShipTripDirection(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition) {
 
         String lastDirection = DetectorUtils.directionOfTarget(lastPosition, actualPosition);
         String enemyDirection = runAwayFromEnemies(maze, actualPosition);
-        String[] moves = {Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT};
-        String[] availableMoves = DetectorUtils.getAvailableMoves(maze, actualPosition, moves);
+        String[] availableMoves = DetectorUtils.getAvailableMoves(maze, actualPosition, MOVES);
 
         String moveRecommended = DetectorUtils.getRecommendedDirection(maze, area, actualPosition, availableMoves);
 
@@ -28,8 +41,13 @@ public class ShipUtils {
         } else if(availableMoves.length > 0){
             return availableMoves[new Random().nextInt(availableMoves.length)];
         } else {
-            return moves[new Random().nextInt(moves.length)];
+            return MOVES[new Random().nextInt(MOVES.length)];
         }
+    }
+
+    public static String getMovePersecution(String[][] maze, Area area, Coordinates actualPosition) {
+        List<Coordinates> potentialThreats = DetectorUtils.getPotentialThreats(maze, actualPosition, 4);
+        return null;
     }
 
     public static Coordinates getTargetDirectShot(String[][] maze, Area area, Coordinates actualPosition, String targetType) {

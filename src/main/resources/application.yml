@@ -1,6 +1,7 @@
 app:
   name: "Juan Antonio Arroyes"
   email: "arroyes89@gmail.com"
+  logpath: ./data
 
 spring:
   datasource:

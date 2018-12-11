@@ -15,6 +15,8 @@ import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
 import com.juanarroyes.apispaceinvaders.utils.ShipUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SerializationUtils;
 
@@ -25,33 +27,28 @@ import java.util.*;
 @Service
 public class ShipServiceImpl {
 
+    @Value("${app.logpath}")
+    private String path;
+
     private String[][] maze;
 
     private SaveGameRepository saveGameRepository;
 
     private ObjectMapper mapper;
 
-    private boolean setup = false;
+    private Long saveGameId;
+
+    private Environment env;
 
     @Autowired
-    public ShipServiceImpl(SaveGameRepository saveGameRepository) {
+    public ShipServiceImpl(SaveGameRepository saveGameRepository, Environment env) {
         this.saveGameRepository = saveGameRepository;
         this.mapper = new ObjectMapper();
+        this.env = env;
     }
 
     public String moveShip(Stage stageData) {
-        Long saveGameId = null;
-        try {
-            SaveGame saveGame = getSaveGameByGameIdAndPlayer(stageData.getGameId(), stageData.getPlayerId());
-            saveGameId = saveGame.getId();
-            MazeObjects objects = mapper.readValue(saveGame.getMazeObjectsDiscovered(), MazeObjects.class);
-            maze = restoreMazeFromSaveGame(saveGame.getMazeWidth(), saveGame.getMazeHeight(), objects.getObjects());
-        } catch(JsonParseException | JsonMappingException e) {
-            log.error("Error when try recovery the maze", e);
-        } catch(IOException | SaveGameNotFoundException e) {
-            init(stageData);
-        }
-        //init(stageData);
+        init(stageData);
         mazeDiscovery(stageData);
         MazeUtils.drawMaze(maze);
         String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
@@ -61,20 +58,36 @@ public class ShipServiceImpl {
         return move;
     }
 
-    public SaveGame getSaveGameByPlayerIdAndGameId(String gameId, String playerId) throws SaveGameNotFoundException {
-        Optional<SaveGame> result = saveGameRepository.findOneByGameIdAndPlayerId(gameId, playerId);
-        if(!result.isPresent()) {
-            throw new SaveGameNotFoundException("Cannot find this save-game by game-id: " + gameId + " and player-id: " + playerId);
-        }
-        return result.get();
-    }
 
+    /**
+     *
+     * @param stageData
+     */
     private void init(Stage stageData) {
-        int height = stageData.getMazeSize().getHeight();
-        int width = stageData.getMazeSize().getWidth();
-        maze = new String[height][width];
-        maze = MazeUtils.addLimitWalls(maze, CellType.WALL);
-        setup = true;
+
+        SaveGame saveGame = null;
+
+        try {
+            saveGame = getSaveGameByGameIdAndPlayer(stageData.getGameId(), stageData.getPlayerId());
+            saveGameId = saveGame.getId();
+            MazeObjects objects = null;
+            try {
+                objects = mapper.readValue(saveGame.getMazeObjectsDiscovered(), MazeObjects.class);
+            } catch(JsonParseException | JsonMappingException e) {
+                log.error("Error when try read values from JSON", e);
+                throw new SaveGameNotFoundException("Error when recovery the savegame info");
+            }
+            maze = restoreMazeFromSaveGame(saveGame.getMazeWidth(), saveGame.getMazeHeight(), objects.getObjects());
+        } catch(IOException | SaveGameNotFoundException e) {
+            log.error("Error when recovery the savegame data", e);
+        }
+
+        if(saveGame == null) {
+            int height = stageData.getMazeSize().getHeight();
+            int width = stageData.getMazeSize().getWidth();
+            maze = new String[height][width];
+            maze = MazeUtils.addLimitWalls(maze, CellType.WALL);
+        }
     }
 
     private void mazeDiscovery(Stage stageData) {
@@ -89,15 +102,19 @@ public class ShipServiceImpl {
             maze[item.getCordY()][item.getCordX()] = CellType.WALL;
         }
 
+        // Add invaders on maze
         List<Invader> invaders = stageData.getInvaders();
         for(Invader invader: invaders) {
             maze[invader.getCordY()][invader.getCordX()] = (invader.isNeutral()) ? CellType.INVADER_NEUTRAL : CellType.INVADER;
         }
 
+        // Add players on maze
         List<Coordinates> enemies = stageData.getEnemies();
         for(Coordinates enemy : enemies) {
             maze[enemy.getCordY()][enemy.getCordX()] = CellType.ENEMY;
         }
+
+        // Add area viewed for log proposal
 
         for(int y = area.getCordY1(); y <= area.getCordY2(); y++) {
             for(int x = area.getCordX1(); x <= area.getCordX2(); x++) {
@@ -110,6 +127,7 @@ public class ShipServiceImpl {
         String move = null;
         Coordinates bestEnemyFire = ShipUtils.getTargetDirectShot(maze, area, actualPosition, CellType.ENEMY);
         Coordinates bestInvaderFire = ShipUtils.getTargetDirectShot(maze, area, actualPosition, CellType.INVADER);
+        List<Coordinates> potentialThreads = DetectorUtils.getPotentialThreats(maze, actualPosition, 3);
 
         if(fire && bestEnemyFire != null) {
             String direction = DetectorUtils.directionOfTarget(actualPosition, bestEnemyFire);
