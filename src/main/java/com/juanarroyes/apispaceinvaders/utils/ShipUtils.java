@@ -37,9 +37,9 @@ public class ShipUtils {
         List<Coordinates> coordinatesList = new ArrayList<>();
 
         for(int x = area.getCordX1(); x <= area.getCordX2(); x++) {
-            if(maze[actualPosition.getCordY()][x].equals(targetType)) {
+            if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(targetType)) {
                 coordinatesList.add(new Coordinates(actualPosition.getCordY(), x));
-            } else if(maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
+            } else if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
                 if(actualPosition.getCordX() < x) {
                     break;
                 } else if(!coordinatesList.isEmpty()) {
