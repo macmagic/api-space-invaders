@@ -112,6 +112,7 @@ public class DetectorUtils {
         int points = 0;
 
         for(String move : availableMoves) {
+            points = 0;
             switch(move) {
                 case Moves.DOWN:
                     idx1 = actualPosition.getCordY()+1;
@@ -157,6 +158,8 @@ public class DetectorUtils {
                         }
                     }
                     break;
+                default:
+                    continue;
             }
 
             if(lastPoints < points) {
