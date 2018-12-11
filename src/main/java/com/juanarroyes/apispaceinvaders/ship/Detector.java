@@ -91,11 +91,13 @@ public class Detector {
         return bestEnemyFollow;
     }
 
-    public static String[] getAvailableMoves(String[][] maze, Coordinates actualPosition, String[] moves) {
+    public static String[] getAvailableMoves(String[][] maze, Coordinates actualPosition, String[] moves, String enemyDirection) {
         List<String> availiableMovesList = new ArrayList<>();
 
         for(String move :  moves) {
-            if(checkMoveIsAvailable(maze, actualPosition, move)) {
+            if(enemyDirection != null && move.equals(enemyDirection)) {
+                continue;
+            } else if(checkMoveIsAvailable(maze, actualPosition, move)) {
                 availiableMovesList.add(move);
             }
         }

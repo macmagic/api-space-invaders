@@ -5,6 +5,7 @@ import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
 import lombok.extern.slf4j.Slf4j;
+import org.yaml.snakeyaml.util.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,9 +61,10 @@ public class Commander {
 
         String lastDirection = Detector.directionOfTarget(lastPosition, actualPosition);
         String enemyDirection = runAwayFromEnemies(maze, actualPosition);
-        String[] availableMoves = Detector.getAvailableMoves(maze, actualPosition, MOVES);
-        //String moveFollow = Detector.directionOfTarget(actualPosition, Detector.getBestEnemyToFollow(maze, actualPosition, Detector.getPotentialThreats(maze, actualPosition, 2)));
+        String[] availableMoves = Detector.getAvailableMoves(maze, actualPosition, MOVES, enemyDirection);
         String moveRecommended = Detector.getRecommendedDirection(maze, area, actualPosition, availableMoves);
+
+        int index = Arrays.asList(availableMoves).indexOf(enemyDirection);
 
         if(moveRecommended != null) {
             return moveRecommended;

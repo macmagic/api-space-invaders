@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface SaveGameRepository extends JpaRepository<SaveGame, Long> {
 
-    Optional<SaveGame> findOneByGameIdAndPlayerId(String gameId, String playerId);
+    Optional<SaveGame> findOneByPlayerId(String playerId);
 
 }

@@ -47,11 +47,10 @@ public class ShipServiceImpl {
         init(stageData);
         mazeDiscovery(stageData);
         MazeUtils.drawMaze(maze);
-        //String move = getDecision(stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
         String move = shipCommander.getDecision();
         System.out.println("Move is: " + move);
         clearMaze();
-        saveSaveGame(stageData.getGameId(), stageData.getPlayerId(), maze,saveGameId);
+        saveSaveGame(stageData.getPlayerId(), maze, saveGameId);
         shipCommander = null;
         System.gc();
         return move;
@@ -62,29 +61,24 @@ public class ShipServiceImpl {
      * @param stageData
      */
     private void init(Stage stageData) {
-
-        SaveGame saveGame = null;
-
-        try {
-            saveGame = getSaveGameByGameIdAndPlayer(stageData.getGameId(), stageData.getPlayerId());
-            saveGameId = saveGame.getId();
-            MazeObjects objects = null;
-            try {
-                objects = mapper.readValue(saveGame.getMazeObjectsDiscovered(), MazeObjects.class);
-            } catch(JsonParseException | JsonMappingException e) {
-                log.error("Error when try read values from JSON", e);
-                throw new SaveGameNotFoundException("Error when recovery the savegame info");
-            }
-            maze = restoreMazeFromSaveGame(saveGame.getMazeWidth(), saveGame.getMazeHeight(), objects.getObjects());
-        } catch(IOException | SaveGameNotFoundException e) {
-            log.error("Error when recovery the savegame data", e);
-        }
+        SaveGame saveGame = getSaveGameByPlayerId(stageData.getPlayerId());
 
         if(saveGame == null) {
             int height = stageData.getMazeSize().getHeight();
             int width = stageData.getMazeSize().getWidth();
             maze = new String[height][width];
             maze = MazeUtils.addLimitWalls(maze, CellType.WALL);
+        } else {
+            saveGameId = saveGame.getId();
+
+            try {
+                MazeObjects mazeObjects = mapper.readValue(saveGame.getMazeObjectsDiscovered(), MazeObjects.class);
+                maze = restoreMazeFromSaveGame(saveGame.getMazeWidth(), saveGame.getMazeHeight(), mazeObjects.getObjects());
+            } catch(JsonParseException | JsonMappingException e) {
+                log.error("Error when try read values from JSON", e);
+            } catch (IOException e) {
+                log.error("Error from IOException", e);
+            }
         }
         shipCommander = new Commander(maze, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
     }
@@ -121,42 +115,11 @@ public class ShipServiceImpl {
         }
     }
 
-    /*private String getDecision(Area area, Coordinates actualPosition, Coordinates lastPosition, boolean fire) {
-        String move = null;
-        Coordinates bestEnemyFire = Commander.getTargetDirectShot(maze, area, actualPosition, CellType.ENEMY);
-        Coordinates bestInvaderFire = Commander.getTargetDirectShot(maze, area, actualPosition, CellType.INVADER);
-        List<Coordinates> potentialThreads = Detector.getPotentialThreats(maze, actualPosition, 3);
-
-        if(fire && bestEnemyFire != null) {
-            String direction = Detector.directionOfTarget(actualPosition, bestEnemyFire);
-            move = getMovement(direction, fire);
-        } else if(fire && bestInvaderFire != null) {
-            String direction = Detector.directionOfTarget(actualPosition, bestInvaderFire);
-            move = getMovement(direction, fire);
-        } else {
-            move = Commander.getShipTripDirection(maze, area, actualPosition, lastPosition);
-        }
-        return move;
-    }*/
-
-    private String getMovement(String direction, boolean fire) {
-        String movement = "";
-        if(fire) {
-            movement = "fire-";
-        }
-        return movement + direction;
-    }
-
-    public void saveSaveGame(String gameId, String playerId, String[][] maze) {
-        saveSaveGame(gameId, playerId, maze, null);
-    }
-
-    public void saveSaveGame(String gameId, String playerId, String[][] maze, Long saveGameId) {
+    private void saveSaveGame(String playerId, String[][] maze, Long saveGameId) {
         SaveGame saveGame = new SaveGame();
         if(saveGameId != null) {
             saveGame.setId(saveGameId);
         }
-        saveGame.setGameId(gameId);
         saveGame.setPlayerId(playerId);
         saveGame.setMazeHeight(maze.length);
         saveGame.setMazeWidth(maze[0].length);
@@ -174,12 +137,9 @@ public class ShipServiceImpl {
         saveGameRepository.save(saveGame);
     }
 
-    public SaveGame getSaveGameByGameIdAndPlayer(String gameId, String playerId) throws SaveGameNotFoundException {
-        Optional<SaveGame> result = saveGameRepository.findOneByGameIdAndPlayerId(gameId, playerId);
-        if(!result.isPresent()) {
-            throw new SaveGameNotFoundException("Not found");
-        }
-        return result.get();
+    private SaveGame getSaveGameByPlayerId(String playerId) {
+        Optional<SaveGame> result = saveGameRepository.findOneByPlayerId(playerId);
+        return result.orElse(null);
     }
 
     private void clearMaze() {

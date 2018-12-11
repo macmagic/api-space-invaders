@@ -16,9 +16,6 @@ public class SaveGame {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "game_id")
-    private String gameId;
-
     @Column(name = "player_id")
     private String playerId;
 
@@ -45,14 +42,6 @@ public class SaveGame {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(String gameId) {
-        this.gameId = gameId;
     }
 
     public String getPlayerId() {
