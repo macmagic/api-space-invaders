@@ -4,8 +4,6 @@ import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
-import com.juanarroyes.apispaceinvaders.utils.DetectorUtils;
-import javafx.scene.control.Cell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
