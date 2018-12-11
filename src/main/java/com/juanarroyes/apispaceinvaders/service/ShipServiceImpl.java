@@ -142,8 +142,8 @@ public class ShipServiceImpl {
         }
         saveGame.setGameId(gameId);
         saveGame.setPlayerId(playerId);
-        saveGame.setMazeHeight(maze[0].length);
-        saveGame.setMazeWidth(maze.length);
+        saveGame.setMazeHeight(maze.length);
+        saveGame.setMazeWidth(maze[0].length);
 
         ObjectMapper objectMapper = new ObjectMapper();
         MazeObjects mazeObjects = new MazeObjects(storeObjectsFromMaze(maze));
