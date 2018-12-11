@@ -11,16 +11,11 @@ import com.juanarroyes.apispaceinvaders.json.MazeObjects;
 import com.juanarroyes.apispaceinvaders.model.SaveGame;
 import com.juanarroyes.apispaceinvaders.repository.SaveGameRepository;
 import com.juanarroyes.apispaceinvaders.ship.Commander;
-import com.juanarroyes.apispaceinvaders.ship.Detector;
-import com.juanarroyes.apispaceinvaders.utils.DetectorUtils;
 import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
-import com.juanarroyes.apispaceinvaders.utils.ShipUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.util.SerializationUtils;
 
 import java.io.IOException;
 import java.util.*;

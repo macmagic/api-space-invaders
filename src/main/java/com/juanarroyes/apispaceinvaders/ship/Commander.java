@@ -4,12 +4,14 @@ import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+@Slf4j
 public class Commander {
 
     private static final String[] MOVES = { Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT };
@@ -82,29 +84,34 @@ public class Commander {
         Coordinates enemy = null;
         List<Coordinates> coordinatesList = new ArrayList<>();
 
+        List<Coordinates> targetsOnAxisX = new ArrayList<>();
         for(int x = area.getCordX1(); x <= area.getCordX2(); x++) {
             if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(targetType)) {
-                coordinatesList.add(new Coordinates(actualPosition.getCordY(), x));
+                targetsOnAxisX.add(new Coordinates(actualPosition.getCordY(), x));
             } else if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
                 if(actualPosition.getCordX() < x) {
                     break;
-                } else if(!coordinatesList.isEmpty()) {
-                    coordinatesList.remove(coordinatesList.size()-1);
+                } else if(!targetsOnAxisX.isEmpty()) {
+                    targetsOnAxisX.remove(targetsOnAxisX.size()-1);
                 }
             }
         }
 
+        List<Coordinates> targetsOnAxisY = new ArrayList<>();
         for(int y = area.getCordY1(); y <= area.getCordY2(); y++) {
             if(maze[y][actualPosition.getCordX()] != null && maze[y][actualPosition.getCordX()].equals(targetType)) {
-                coordinatesList.add(new Coordinates(y, actualPosition.getCordX()));
+                targetsOnAxisY.add(new Coordinates(y, actualPosition.getCordX()));
             } else if(maze[y][actualPosition.getCordX()] != null && maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
                 if(actualPosition.getCordY() < y) {
                     break;
-                } else if(!coordinatesList.isEmpty()) {
-                    coordinatesList.remove(coordinatesList.size()-1);
+                } else if(!targetsOnAxisY.isEmpty()) {
+                    targetsOnAxisY.remove(targetsOnAxisY.size()-1);
                 }
             }
         }
+
+        coordinatesList.addAll(targetsOnAxisX);
+        coordinatesList.addAll(targetsOnAxisY);
 
         for(Coordinates item : coordinatesList) {
             int distanceOfEnemy = Detector.distanceOfTwoObjects(actualPosition, item);

@@ -4,10 +4,12 @@ import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class Detector {
 
     /**
@@ -42,13 +44,13 @@ public class Detector {
      * @return
      */
     public static String directionOfTarget(Coordinates ship, Coordinates target) {
-        if (ship.getCordY() == target.getCordY() && (ship.getCordX() - target.getCordX()) < 0) {
+        if ((ship.getCordX() - target.getCordX()) < 0) {
             return Moves.RIGHT;
-        } else if (ship.getCordY() == target.getCordY() && (ship.getCordX() - target.getCordX()) > 0) {
+        } else if ((ship.getCordX() - target.getCordX()) > 0) {
             return Moves.LEFT;
-        } else if (ship.getCordX() == target.getCordX() && (ship.getCordY() - target.getCordY()) > 0) {
+        } else if ((ship.getCordY() - target.getCordY()) > 0) {
             return Moves.UP;
-        } else if (ship.getCordX() == target.getCordX() && (ship.getCordY() - target.getCordY()) < 0) {
+        } else if ((ship.getCordY() - target.getCordY()) < 0) {
             return Moves.DOWN;
         }
         return null;
@@ -81,7 +83,7 @@ public class Detector {
 
         for(Coordinates enemy :  threats) {
             int distance = distanceOfTwoObjects(actualPosition, enemy);
-            if(distance <= lastDistance) {
+            if(bestEnemyFollow == null || distance <= lastDistance) {
                 lastDistance = distance;
                 bestEnemyFollow = enemy;
             }
