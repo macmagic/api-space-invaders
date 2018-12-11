@@ -1,4 +1,4 @@
-package com.juanarroyes.apispaceinvaders.utils;
+package com.juanarroyes.apispaceinvaders.ship;
 
 import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.constants.Moves;
@@ -8,7 +8,7 @@ import com.juanarroyes.apispaceinvaders.dto.Coordinates;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DetectorUtils {
+public class Detector {
 
     /**
      *
@@ -16,7 +16,7 @@ public class DetectorUtils {
      * @param target
      * @return
      */
-    /*public static int distanceOfTwoObjects(Coordinates source, Coordinates target) {
+    public static int distanceOfTwoObjects(Coordinates source, Coordinates target) {
         int distance = 0;
         if(source.getCordX() == target.getCordX()) {
             distance = target.getCordY() - source.getCordY();
@@ -41,7 +41,7 @@ public class DetectorUtils {
      * @param target
      * @return
      */
-  /*  public static String directionOfTarget(Coordinates ship, Coordinates target) {
+    public static String directionOfTarget(Coordinates ship, Coordinates target) {
         if (ship.getCordY() == target.getCordY() && (ship.getCordX() - target.getCordX()) < 0) {
             return Moves.RIGHT;
         } else if (ship.getCordY() == target.getCordY() && (ship.getCordX() - target.getCordX()) > 0) {
@@ -54,7 +54,6 @@ public class DetectorUtils {
         return null;
     }
 
-    /*
     public static List<Coordinates> getPotentialThreats(String[][] maze, Coordinates position, int distance) {
         int cordY1 = ((position.getCordY() - distance) < 0) ? 0 : position.getCordY() - distance;
         int cordX1 = ((position.getCordX() - distance) < 0) ? 0 : position.getCordX() - distance;
@@ -75,6 +74,21 @@ public class DetectorUtils {
         return threats;
     }
 
+    public static Coordinates followBestEnemy(String[][] maze, Coordinates actualPosition, List<Coordinates> threats) {
+
+        int lastDistance = 0;
+        Coordinates bestEnemyFollow = null;
+
+        for(Coordinates enemy :  threats) {
+            int distance = distanceOfTwoObjects(actualPosition, enemy);
+            if(distance <= lastDistance) {
+                lastDistance = distance;
+                bestEnemyFollow = enemy;
+            }
+        }
+        return bestEnemyFollow;
+    }
+
     public static String[] getAvailableMoves(String[][] maze, Coordinates actualPosition, String[] moves) {
         List<String> availiableMovesList = new ArrayList<>();
 
@@ -84,12 +98,12 @@ public class DetectorUtils {
             }
         }
 
-        String[] availiableMovesArr = new String[availiableMovesList.size()];
-        availiableMovesList.toArray(availiableMovesArr);
-        return availiableMovesArr;
+        String[] availableMovesArr = new String[availiableMovesList.size()];
+        availiableMovesList.toArray(availableMovesArr);
+        return availableMovesArr;
     }
 
-    public static boolean checkMoveIsAvailable(String[][] maze, Coordinates actualPosition, String move) {
+    private static boolean checkMoveIsAvailable(String[][] maze, Coordinates actualPosition, String move) {
         switch(move) {
             case Moves.DOWN:
                 return (maze[actualPosition.getCordY()+1][actualPosition.getCordX()] !=null && !maze[actualPosition.getCordY()+1][actualPosition.getCordX()].equals(CellType.WALL));
@@ -107,10 +121,10 @@ public class DetectorUtils {
     public static String getRecommendedDirection(String[][] maze, Area area, Coordinates actualPosition, String[] availableMoves) {
         int lastPoints = 0;
         String moveSelected = null;
-        int idx1 = 0;
-        int idx2 = 0;
-        int idx = 0;
-        int points = 0;
+        int idx1;
+        int idx2;
+        int idx;
+        int points;
 
         for(String move : availableMoves) {
             points = 0;
@@ -169,5 +183,6 @@ public class DetectorUtils {
             }
         }
         return moveSelected;
-    }*/
+    }
+
 }

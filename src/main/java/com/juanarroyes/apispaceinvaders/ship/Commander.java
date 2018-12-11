@@ -1,38 +1,68 @@
-package com.juanarroyes.apispaceinvaders.utils;
+package com.juanarroyes.apispaceinvaders.ship;
 
 import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
+import com.juanarroyes.apispaceinvaders.utils.DetectorUtils;
+import javafx.scene.control.Cell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class ShipUtils {
+public class Commander {
 
-   /* private static final String[] MOVES = { Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT };
+    private static final String[] MOVES = { Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT };
 
-    public static String getShipTripDirectionNEW(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition) {
-        String lastDirection = DetectorUtils.directionOfTarget(lastPosition, actualPosition);
-        String enemyDirection = runAwayFromEnemies(maze, actualPosition);
-        String[] availableMoves = DetectorUtils.getAvailableMoves(maze, actualPosition, MOVES);
-        String moveRecommended = DetectorUtils.getRecommendedDirection(maze, area, actualPosition, availableMoves);
-        String movePersecution = getMovePersecution(maze, area, actualPosition);
+    private String[][] maze;
+    private Area area;
+    private Coordinates actualPosition;
+    private Coordinates lastPosition;
+    private boolean fire;
 
-        //if(moveRecommended != null && )
+    public Commander() {
 
-        return null;
     }
 
-    public static String getShipTripDirection(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition) {
+    public Commander(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition, boolean fire) {
+        this.maze = maze;
+        this.area = area;
+        this.actualPosition = actualPosition;
+        this.lastPosition = lastPosition;
+        this.fire = fire;
+    }
 
-        String lastDirection = DetectorUtils.directionOfTarget(lastPosition, actualPosition);
+    public String getDecision() {
+        String move = null;
+        Coordinates bestEnemyFire = getTargetDirectShot(CellType.ENEMY);
+        Coordinates bestInvaderFire = getTargetDirectShot(CellType.INVADER);
+        List<Coordinates> potentialThreads = Detector.getPotentialThreats(maze, actualPosition, 3);
+
+        if(fire && bestEnemyFire != null) {
+            String direction = Detector.directionOfTarget(actualPosition, bestEnemyFire);
+            move = getMovement(direction, fire);
+        } else if(fire && bestInvaderFire != null) {
+            String direction = Detector.directionOfTarget(actualPosition, bestInvaderFire);
+            move = getMovement(direction, fire);
+        } else if(fire && !potentialThreads.isEmpty()) {
+            Coordinates enemy = Detector.followBestEnemy(maze, actualPosition, potentialThreads);
+            move = Detector.directionOfTarget(actualPosition, enemy);
+        } else {
+            move = getShipTripDirection();
+        }
+        return move;
+
+    }
+
+    private String getShipTripDirection() {
+
+        String lastDirection = Detector.directionOfTarget(lastPosition, actualPosition);
         String enemyDirection = runAwayFromEnemies(maze, actualPosition);
-        String[] availableMoves = DetectorUtils.getAvailableMoves(maze, actualPosition, MOVES);
-
-        String moveRecommended = DetectorUtils.getRecommendedDirection(maze, area, actualPosition, availableMoves);
+        String[] availableMoves = Detector.getAvailableMoves(maze, actualPosition, MOVES);
+        //String moveFollow = Detector.directionOfTarget(actualPosition, Detector.getBestEnemyToFollow(maze, actualPosition, Detector.getPotentialThreats(maze, actualPosition, 2)));
+        String moveRecommended = Detector.getRecommendedDirection(maze, area, actualPosition, availableMoves);
 
         if(moveRecommended != null) {
             return moveRecommended;
@@ -46,11 +76,11 @@ public class ShipUtils {
     }
 
     public static String getMovePersecution(String[][] maze, Area area, Coordinates actualPosition) {
-        List<Coordinates> potentialThreats = DetectorUtils.getPotentialThreats(maze, actualPosition, 4);
+        List<Coordinates> potentialThreats = Detector.getPotentialThreats(maze, actualPosition, 4);
         return null;
     }
 
-    public static Coordinates getTargetDirectShot(String[][] maze, Area area, Coordinates actualPosition, String targetType) {
+    private Coordinates getTargetDirectShot(String targetType) {
         Coordinates enemy = null;
         List<Coordinates> coordinatesList = new ArrayList<>();
 
@@ -79,9 +109,9 @@ public class ShipUtils {
         }
 
         for(Coordinates item : coordinatesList) {
-            int distanceOfEnemy = DetectorUtils.distanceOfTwoObjects(actualPosition, item);
+            int distanceOfEnemy = Detector.distanceOfTwoObjects(actualPosition, item);
 
-            if(enemy == null || DetectorUtils.distanceOfTwoObjects(actualPosition, enemy) > distanceOfEnemy) {
+            if(enemy == null || Detector.distanceOfTwoObjects(actualPosition, enemy) > distanceOfEnemy) {
                 enemy = item;
             }
             System.out.println("Distance for " + item.toString() + " of position " + actualPosition.toString() + " is " + String.valueOf(distanceOfEnemy));
@@ -95,10 +125,10 @@ public class ShipUtils {
         String enemyDirection = null;
         int lastDistance = 0;
 
-        List<Coordinates> enemies = DetectorUtils.getPotentialThreats(maze, actualPosition, 2);
+        List<Coordinates> enemies = Detector.getPotentialThreats(maze, actualPosition, 2);
         for(Coordinates enemy : enemies) {
-            int distance = DetectorUtils.distanceOfTwoObjects(actualPosition, enemy);
-            String direction = DetectorUtils.directionOfTarget(actualPosition, enemy);
+            int distance = Detector.distanceOfTwoObjects(actualPosition, enemy);
+            String direction = Detector.directionOfTarget(actualPosition, enemy);
 
             if(lastDistance == 0) {
                 lastDistance = distance;
@@ -109,5 +139,13 @@ public class ShipUtils {
             }
         }
         return enemyDirection;
-    }*/
+    }
+
+    private static String getMovement(String direction, boolean fire) {
+        String movement = "";
+        if(fire) {
+            movement = "fire-";
+        }
+        return movement + direction;
+    }
 }
