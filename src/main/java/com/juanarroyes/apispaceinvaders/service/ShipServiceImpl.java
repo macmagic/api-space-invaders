@@ -1,23 +1,14 @@
 package com.juanarroyes.apispaceinvaders.service;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.dto.*;
-import com.juanarroyes.apispaceinvaders.exception.SaveGameNotFoundException;
-import com.juanarroyes.apispaceinvaders.json.MazeObjects;
-import com.juanarroyes.apispaceinvaders.model.SaveGame;
-import com.juanarroyes.apispaceinvaders.repository.SaveGameRepository;
 import com.juanarroyes.apispaceinvaders.ship.Commander;
 import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
+import com.juanarroyes.apispaceinvaders.utils.Storage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.*;
 
 @Slf4j
@@ -29,18 +20,11 @@ public class ShipServiceImpl {
 
     private String[][] maze;
 
-    private SaveGameRepository saveGameRepository;
-
-    private ObjectMapper mapper;
-
-    private Long saveGameId;
-
     private Commander shipCommander;
 
-    @Autowired
-    public ShipServiceImpl(SaveGameRepository saveGameRepository) {
-        this.saveGameRepository = saveGameRepository;
-        this.mapper = new ObjectMapper();
+    private Map<String, Storage> games = new HashMap<>();
+
+    public ShipServiceImpl() {
     }
 
     public String moveShip(Stage stageData) {
@@ -50,7 +34,7 @@ public class ShipServiceImpl {
         String move = shipCommander.getDecision();
         System.out.println("Move is: " + move);
         clearMaze();
-        //saveSaveGame(stageData.getPlayerId(), maze, saveGameId);
+        storageGame(stageData.getPlayerId(), maze);
         shipCommander = null;
         return move;
     }
@@ -60,25 +44,16 @@ public class ShipServiceImpl {
      * @param stageData
      */
     private void init(Stage stageData) {
-        SaveGame saveGame = getSaveGameByPlayerId(stageData.getPlayerId());
-
-        if(saveGame == null) {
+        Storage storage = games.get(stageData.getGameId());
+        if(storage != null) {
+            maze = storage.getMaze();
+        } else {
             int height = stageData.getMazeSize().getHeight();
             int width = stageData.getMazeSize().getWidth();
             maze = new String[height][width];
             maze = MazeUtils.addLimitWalls(maze, CellType.WALL);
-        } else {
-            saveGameId = saveGame.getId();
-
-            try {
-                MazeObjects mazeObjects = mapper.readValue(saveGame.getMazeObjectsDiscovered(), MazeObjects.class);
-                maze = restoreMazeFromSaveGame(saveGame.getMazeWidth(), saveGame.getMazeHeight(), mazeObjects.getObjects());
-            } catch(JsonParseException | JsonMappingException e) {
-                log.error("Error when try read values from JSON", e);
-            } catch (IOException e) {
-                log.error("Error from IOException", e);
-            }
         }
+
         shipCommander = new Commander(maze, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
     }
 
@@ -114,33 +89,6 @@ public class ShipServiceImpl {
         }
     }
 
-    private void saveSaveGame(String playerId, String[][] maze, Long saveGameId) {
-        SaveGame saveGame = new SaveGame();
-        if(saveGameId != null) {
-            saveGame.setId(saveGameId);
-        }
-        saveGame.setPlayerId(playerId);
-        saveGame.setMazeHeight(maze.length);
-        saveGame.setMazeWidth(maze[0].length);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        MazeObjects mazeObjects = new MazeObjects(storeObjectsFromMaze(maze));
-        String objectsSerialized = null;
-        try {
-            objectsSerialized = objectMapper.writeValueAsString(mazeObjects);
-        } catch(JsonProcessingException e) {
-            log.error("Error when convert object to json: " + e.getMessage(), e);
-        }
-
-        saveGame.setMazeObjectsDiscovered(objectsSerialized);
-        saveGameRepository.save(saveGame);
-    }
-
-    private SaveGame getSaveGameByPlayerId(String playerId) {
-        Optional<SaveGame> result = saveGameRepository.findOneByPlayerId(playerId);
-        return result.orElse(null);
-    }
-
     private void clearMaze() {
         int rowCount = maze.length;
         int colCount = maze[0].length;
@@ -170,14 +118,15 @@ public class ShipServiceImpl {
         return objects;
     }
 
-    private String[][] restoreMazeFromSaveGame(Integer width, Integer height, List<Map<String, Coordinates>> objectsDiscovered) {
-        String[][] mazeRecovery = new String[height][width];
-
-        for(Map<String, Coordinates> item : objectsDiscovered) {
-            String cellType = (String) item.keySet().toArray()[0];
-            Coordinates coordinates = item.get(cellType);
-            mazeRecovery[coordinates.getCordY()][coordinates.getCordX()] = cellType;
+    private void storageGame(String playerId, String[][] maze) {
+        Storage storage = games.get(playerId);
+        if(storage == null) {
+            storage = new Storage();
         }
-        return mazeRecovery;
+
+        storage.setHeight(maze.length);
+        storage.setWidth(maze[0].length);
+        storage.setMaze(maze);
+        games.put(playerId, storage);
     }
 }

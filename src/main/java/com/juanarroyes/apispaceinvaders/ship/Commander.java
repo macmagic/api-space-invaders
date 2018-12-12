@@ -40,6 +40,10 @@ public class Commander {
         this.potentialEnemies = new ArrayList<>();
     }
 
+    public void setMaze(String[][] maze) {
+        this.maze = maze;
+    }
+
     public String getDecision() {
         String move = null;
         Coordinates bestEnemyFire = getTargetDirectShot(CellType.ENEMY);
