@@ -13,6 +13,9 @@ import java.util.List;
 @Slf4j
 public class Detector {
 
+    private static final int AXIS_X = 1;
+    private static final int AXIS_Y = 2;
+
     /**
      *
      * @param source
@@ -265,6 +268,18 @@ public class Detector {
         return moveSelected;
     }
 
+    /*private static int checkDirection(int idxStart, int idxFinal, int idxStatic, int axisType, boolean reverse) {
+        int points = 0;
+
+        for(idx = idx1; idx <= idx2; idx++) {
+            if(maze[actualPosition.getCordY()][idx] != null && maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
+                points++;
+            } else if(maze[actualPosition.getCordY()][idx] == null || !maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
+                break;
+            }
+        }
+    }*/
+
     public static boolean isLastMovementCorrect(String[][] maze, Coordinates actualPosition, String lastMove) {
         int distance = 2;
         if(lastMove.equals(Moves.RIGHT)) {
@@ -293,9 +308,6 @@ public class Detector {
             }
         }
         return true;
-
-
-
     }
 
 }
