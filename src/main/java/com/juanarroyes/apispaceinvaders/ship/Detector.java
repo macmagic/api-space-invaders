@@ -4,6 +4,7 @@ import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
+import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -77,7 +78,45 @@ public class Detector {
                 }
             }
         } else {
-
+            if(((target.getCordX() - source.getCordX()) < 0) && (target.getCordY() - source.getCordY()) < 0) {
+                System.out.println("Revert for in axis Y and X");
+                for(int y = y2; y >= y1; y--) {
+                    for(int x = x2; x >= x1; x--) {
+                        if(maze[y][x] != null && maze[y][x].equals(CellType.WALL)) {
+                            return true;
+                        }
+                    }
+                }
+                System.out.println("Finish X and Y....");
+            } else if((target.getCordY() - source.getCordY()) < 0) {
+                System.out.println("Revert for in axis Y");
+                for(int y = y2; y>=y1; y--) {
+                    for(int x = x1; x<= x2; x++) {
+                        if(maze[y][x] != null && maze[y][x].equals(CellType.WALL)) {
+                            return true;
+                        }
+                    }
+                }
+                System.out.println("Finish Y....");
+            } else if((target.getCordX() - source.getCordX()) < 0) {
+                System.out.println("Revert for in axis X");
+                for(int y = y1; y<=y2; y++) {
+                    for(int x = x2; x >= x1; x--) {
+                        if(maze[y][x] != null && maze[y][x].equals(CellType.WALL)) {
+                            return true;
+                        }
+                    }
+                }
+                System.out.println("Finish X....");
+            } else {
+                for(int y = y1; y<=y2; y++) {
+                    for(int x = x1; x < x2; x++) {
+                        if(maze[y][x] != null && maze[y][x].equals(CellType.WALL)) {
+                            return true;
+                        }
+                    }
+                }
+            }
         }
         return false;
     }
@@ -113,7 +152,7 @@ public class Detector {
                 String cellValue = maze[y][x];
                 if(cellValue == null) {
                     continue;
-                } else if(cellValue.equals(CellType.ENEMY) || cellValue.equals(CellType.INVADER)) {
+                } else if((cellValue.equals(CellType.ENEMY) || cellValue.equals(CellType.INVADER)) && !isObstacleBetweenTwoObjects(maze, position, new Coordinates(y, x))) {
                     threats.add(new Coordinates(y, x));
                 }
             }
@@ -128,7 +167,7 @@ public class Detector {
 
         for(Coordinates enemy :  threats) {
             int distance = distanceOfTwoObjects(actualPosition, enemy);
-            if((bestEnemyFollow == null || distance <= lastDistance) && !Detector.isObstacleBetweenTwoObjects(maze, actualPosition, enemy)) {
+            if((bestEnemyFollow == null || distance <= lastDistance)) {
                 lastDistance = distance;
                 bestEnemyFollow = enemy;
             }
@@ -140,9 +179,7 @@ public class Detector {
         List<String> availiableMovesList = new ArrayList<>();
 
         for(String move :  moves) {
-            if(enemyDirection != null && move.equals(enemyDirection)) {
-                continue;
-            } else if(checkMoveIsAvailable(maze, actualPosition, move)) {
+            if(!move.equals(enemyDirection) && checkMoveIsAvailable(maze, actualPosition, move)) {
                 availiableMovesList.add(move);
             }
         }
