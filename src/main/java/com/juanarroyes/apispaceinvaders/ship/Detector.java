@@ -288,7 +288,7 @@ public class Detector {
     }
 
     public static boolean isLastMovementCorrect(String[][] maze, Coordinates actualPosition, String lastMove) {
-        int distance = 3;
+        int distance = 4;
         if(lastMove.equals(Moves.RIGHT)) {
             for(int x = actualPosition.getCordX(); x <= actualPosition.getCordX() + distance; x++) {
                 if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
