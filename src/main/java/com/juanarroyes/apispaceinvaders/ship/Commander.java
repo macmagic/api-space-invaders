@@ -69,8 +69,7 @@ public class Commander {
         String[] availableMoves = Detector.getAvailableMoves(maze, actualPosition, MOVES, enemyDirection);
         String moveRecommended = Detector.getRecommendedDirection(maze, area, actualPosition, availableMoves);
 
-
-        if(lastDirection != null && Detector.isLastMovementCorrect(maze, actualPosition, lastDirection) && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {
+        if(lastDirection != null && Detector.isLastMovementCorrect(maze, actualPosition, lastDirection) && (moveRecommended != null && !moveRecommended.equals(lastDirection)) && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {
             return lastDirection;
         } else if(moveRecommended != null) {
             return moveRecommended;

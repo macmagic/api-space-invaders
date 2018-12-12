@@ -271,20 +271,24 @@ public class Detector {
 
     private static int getPointsByConditions(String[][] maze, int axisType, int idx, int idxStatic) {
         int points = 0;
-        if(axisType == AXIS_X && maze[idxStatic][idx] != null && maze[idxStatic][idx].equals(CellType.VIEWED)) {
+        if(axisType == AXIS_X &&
+                maze[idxStatic][idx] != null &&
+                (maze[idxStatic][idx].equals(CellType.VIEWED) || maze[idxStatic][idx].equals(CellType.LAST_POSITION))) {
             points++;
-        } else if(axisType == AXIS_Y && (maze[idx][idxStatic] != null && maze[idx][idxStatic].equals(CellType.VIEWED))) {
+        } else if(axisType == AXIS_Y &&
+                maze[idx][idxStatic] != null &&
+                (maze[idx][idxStatic].equals(CellType.VIEWED) || maze[idx][idxStatic].equals(CellType.LAST_POSITION))) {
             points++;
-        } else if(axisType == AXIS_X && (maze[idxStatic][idx] == null || !maze[idxStatic][idx].equals(CellType.VIEWED))) {
+        } else if(axisType == AXIS_X && (maze[idxStatic][idx] == null || !maze[idxStatic][idx].equals(CellType.VIEWED) || !maze[idxStatic][idx].equals(CellType.LAST_POSITION))) {
             points = -1;
-        } else if(axisType == AXIS_Y && (maze[idx][idxStatic] == null || !maze[idx][idxStatic].equals(CellType.VIEWED))) {
+        } else if(axisType == AXIS_Y && (maze[idx][idxStatic] == null || !maze[idx][idxStatic].equals(CellType.VIEWED) || maze[idx][idxStatic].equals(CellType.LAST_POSITION))) {
             points = -1;
         }
         return points;
     }
 
     public static boolean isLastMovementCorrect(String[][] maze, Coordinates actualPosition, String lastMove) {
-        int distance = 2;
+        int distance = 3;
         if(lastMove.equals(Moves.RIGHT)) {
             for(int x = actualPosition.getCordX(); x <= actualPosition.getCordX() + distance; x++) {
                 if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
@@ -292,13 +296,13 @@ public class Detector {
                 }
             }
         } else if(lastMove.equals(Moves.LEFT)) {
-            for(int x = actualPosition.getCordX() - distance; x >= actualPosition.getCordX(); x--) {
+            for(int x = actualPosition.getCordX(); x >= actualPosition.getCordX() - distance; x--) {
                 if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
                     return false;
                 }
             }
         } else if(lastMove.equals(Moves.UP)) {
-            for(int y = actualPosition.getCordY() - distance; y >= actualPosition.getCordY(); y--) {
+            for(int y = actualPosition.getCordY(); y >= actualPosition.getCordY() - distance; y--) {
                 if(maze[y][actualPosition.getCordX()] != null &&maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
                     return false;
                 }
