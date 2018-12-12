@@ -29,11 +29,12 @@ public class ShipServiceImpl {
 
     public String moveShip(Stage stageData) {
         init(stageData);
+        log.info("Game info: {player_id: " + stageData.getPlayerId() + ", height: " + stageData.getMazeSize().getHeight() + ", width: " + stageData.getMazeSize().getWidth() + "}");
+        log.info("Discover maze area to get objects to calculate next action...");
         mazeDiscovery(stageData);
-        System.out.println("PLAYER ID: " + stageData.getPlayerId());
-        MazeUtils.drawMaze(maze);
+        log.info("The maze now is: \n" + MazeUtils.drawMazeToLog(maze));
         String move = shipCommander.getDecision();
-        System.out.println("Move is: " + move);
+        log.info("Next action is: " + move);
         clearMaze();
         storageGame(stageData.getPlayerId(), maze);
         shipCommander = null;

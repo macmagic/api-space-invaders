@@ -79,7 +79,6 @@ public class Detector {
             }
         } else {
             if(((target.getCordX() - source.getCordX()) < 0) && (target.getCordY() - source.getCordY()) < 0) {
-                System.out.println("Revert for in axis Y and X");
                 for(int y = y2; y >= y1; y--) {
                     for(int x = x2; x >= x1; x--) {
                         if(maze[y][x] != null && maze[y][x].equals(CellType.WALL)) {
@@ -87,9 +86,7 @@ public class Detector {
                         }
                     }
                 }
-                System.out.println("Finish X and Y....");
             } else if((target.getCordY() - source.getCordY()) < 0) {
-                System.out.println("Revert for in axis Y");
                 for(int y = y2; y>=y1; y--) {
                     for(int x = x1; x<= x2; x++) {
                         if(maze[y][x] != null && maze[y][x].equals(CellType.WALL)) {
@@ -97,9 +94,7 @@ public class Detector {
                         }
                     }
                 }
-                System.out.println("Finish Y....");
             } else if((target.getCordX() - source.getCordX()) < 0) {
-                System.out.println("Revert for in axis X");
                 for(int y = y1; y<=y2; y++) {
                     for(int x = x2; x >= x1; x--) {
                         if(maze[y][x] != null && maze[y][x].equals(CellType.WALL)) {
@@ -107,7 +102,6 @@ public class Detector {
                         }
                     }
                 }
-                System.out.println("Finish X....");
             } else {
                 for(int y = y1; y<=y2; y++) {
                     for(int x = x1; x < x2; x++) {
@@ -269,6 +263,39 @@ public class Detector {
             }
         }
         return moveSelected;
+    }
+
+    public static boolean isLastMovementCorrect(String[][] maze, Coordinates actualPosition, String lastMove) {
+        int distance = 2;
+        if(lastMove.equals(Moves.RIGHT)) {
+            for(int x = actualPosition.getCordX(); x <= actualPosition.getCordX() + distance; x++) {
+                if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
+                    return false;
+                }
+            }
+        } else if(lastMove.equals(Moves.LEFT)) {
+            for(int x = actualPosition.getCordX() - distance; x >= actualPosition.getCordX(); x--) {
+                if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
+                    return false;
+                }
+            }
+        } else if(lastMove.equals(Moves.UP)) {
+            for(int y = actualPosition.getCordY() - distance; y >= actualPosition.getCordY(); y--) {
+                if(maze[y][actualPosition.getCordX()] != null &&maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
+                    return false;
+                }
+            }
+        } else if(lastMove.equals(Moves.DOWN)) {
+            for(int y = actualPosition.getCordY(); y <= actualPosition.getCordY() + distance; y++) {
+                if(maze[y][actualPosition.getCordX()] != null &&maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+
+
+
     }
 
 }

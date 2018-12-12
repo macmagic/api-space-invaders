@@ -73,10 +73,11 @@ public class Commander {
         String[] availableMoves = Detector.getAvailableMoves(maze, actualPosition, MOVES, enemyDirection);
         String moveRecommended = Detector.getRecommendedDirection(maze, area, actualPosition, availableMoves);
 
-        if(moveRecommended != null) {
-            return moveRecommended;
-        } else if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {
+
+        if(lastDirection != null && Detector.isLastMovementCorrect(maze, actualPosition, lastDirection) && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {
             return lastDirection;
+        } else if(moveRecommended != null) {
+            return moveRecommended;
         } else if(availableMoves.length > 0){
             return availableMoves[new Random().nextInt(availableMoves.length)];
         } else {
@@ -123,10 +124,7 @@ public class Commander {
             if(enemy == null || Detector.distanceOfTwoObjects(actualPosition, enemy) > distanceOfEnemy) {
                 enemy = item;
             }
-            System.out.println("Distance for " + item.toString() + " of position " + actualPosition.toString() + " is " + String.valueOf(distanceOfEnemy));
         }
-
-        System.out.println("The enemy is: " + ((enemy != null) ? enemy.toString() : "null"));
         return enemy;
     }
 

@@ -1,7 +1,5 @@
 package com.juanarroyes.apispaceinvaders.utils;
 
-import com.juanarroyes.apispaceinvaders.dto.Area;
-
 public class MazeUtils {
 
     public static final String CELL_WALL = "W";
@@ -11,7 +9,24 @@ public class MazeUtils {
     public static final String CELL_POSITION = "P";
     public static final String CELL_VIEW = "V";
 
-    public static void drawMaze(String[][] maze) {
+    public static String drawMazeToLog(String[][] maze) {
+        StringBuilder sb = new StringBuilder();
+        int rowCount = maze.length;
+        int colCount = maze[0].length;
+        String cell;
+
+        for(int y = 0; y < rowCount; y++) {
+            sb.append("| ");
+            for(int x = 0; x < colCount; x++) {
+                cell = (maze[y][x] == null) ? "-" : maze[y][x];
+                sb.append(cell).append(" | ");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    public static void drawMazeToConsole(String[][] maze) {
         StringBuilder sb = new StringBuilder();
         int rowCount = maze.length;
         int colCount = maze[0].length;
