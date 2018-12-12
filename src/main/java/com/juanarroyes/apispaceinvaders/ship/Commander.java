@@ -40,12 +40,8 @@ public class Commander {
         this.potentialEnemies = new ArrayList<>();
     }
 
-    public void setMaze(String[][] maze) {
-        this.maze = maze;
-    }
-
     public String getDecision() {
-        String move = null;
+        String move;
         Coordinates bestEnemyFire = getTargetDirectShot(CellType.ENEMY);
         Coordinates bestInvaderFire = getTargetDirectShot(CellType.INVADER);
         potentialEnemies = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);

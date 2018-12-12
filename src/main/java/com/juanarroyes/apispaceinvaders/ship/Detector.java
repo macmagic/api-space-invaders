@@ -206,55 +206,29 @@ public class Detector {
         String moveSelected = null;
         int idx1;
         int idx2;
-        int idx;
         int points;
 
         for(String move : availableMoves) {
-            points = 0;
             switch(move) {
                 case Moves.DOWN:
                     idx1 = actualPosition.getCordY()+1;
                     idx2 = area.getCordY2();
-                    for(idx = idx1; idx <= idx2; idx++) {
-                        if(maze[idx][actualPosition.getCordX()] != null && maze[idx][actualPosition.getCordX()].equals(CellType.VIEWED)) {
-                            points++;
-                        } else if(maze[idx][actualPosition.getCordX()] == null || !maze[idx][actualPosition.getCordX()].equals(CellType.VIEWED)) {
-                            break;
-                        }
-                    }
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, false);
                     break;
                 case Moves.UP:
                     idx1 = area.getCordY1();
                     idx2 = actualPosition.getCordY()-1;
-                    for(idx = idx2; idx >= idx1; idx--) {
-                        if(maze[idx][actualPosition.getCordX()] != null && maze[idx][actualPosition.getCordX()].equals(CellType.VIEWED)) {
-                            points++;
-                        } else if(maze[idx][actualPosition.getCordX()] == null || !maze[idx][actualPosition.getCordX()].equals(CellType.VIEWED)) {
-                            break;
-                        }
-                    }
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, true);
                     break;
                 case Moves.LEFT:
                     idx1 = area.getCordX1();
                     idx2 = actualPosition.getCordX() -1;
-                    for(idx = idx2; idx >= idx1; idx--) {
-                        if(maze[actualPosition.getCordY()][idx] != null && maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
-                            points++;
-                        } else if(maze[actualPosition.getCordY()][idx] == null || !maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
-                            break;
-                        }
-                    }
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_X, true);
                     break;
                 case Moves.RIGHT:
                     idx1 = actualPosition.getCordX() + 1;
                     idx2 = area.getCordX2();
-                    for(idx = idx1; idx <= idx2; idx++) {
-                        if(maze[actualPosition.getCordY()][idx] != null && maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
-                            points++;
-                        } else if(maze[actualPosition.getCordY()][idx] == null || !maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
-                            break;
-                        }
-                    }
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_X, false);
                     break;
                 default:
                     continue;
@@ -268,17 +242,46 @@ public class Detector {
         return moveSelected;
     }
 
-    /*private static int checkDirection(int idxStart, int idxFinal, int idxStatic, int axisType, boolean reverse) {
+    private static int checkDirection(String[][] maze, int idxStart, int idxFinal, int idxStatic, int axisType, boolean reverse) {
         int points = 0;
+        int idx;
+        int pointsIteration = 0;
 
-        for(idx = idx1; idx <= idx2; idx++) {
-            if(maze[actualPosition.getCordY()][idx] != null && maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
-                points++;
-            } else if(maze[actualPosition.getCordY()][idx] == null || !maze[actualPosition.getCordY()][idx].equals(CellType.VIEWED)) {
-                break;
+        if(reverse) {
+            for(idx = idxFinal; idx >= idxStart; idx--) {
+                pointsIteration = getPointsByConditions(maze, axisType, idx, idxStatic);
+                if(pointsIteration != -1) {
+                    points = points + pointsIteration;
+                } else {
+                    break;
+                }
+            }
+        } else {
+            for(idx = idxStart; idx <= idxFinal; idx++) {
+                pointsIteration = getPointsByConditions(maze, axisType, idx, idxStatic);
+                if(pointsIteration != -1) {
+                    points = points + pointsIteration;
+                } else {
+                    break;
+                }
             }
         }
-    }*/
+        return points;
+    }
+
+    private static int getPointsByConditions(String[][] maze, int axisType, int idx, int idxStatic) {
+        int points = 0;
+        if(axisType == AXIS_X && maze[idxStatic][idx] != null && maze[idxStatic][idx].equals(CellType.VIEWED)) {
+            points++;
+        } else if(axisType == AXIS_Y && (maze[idx][idxStatic] != null && maze[idx][idxStatic].equals(CellType.VIEWED))) {
+            points++;
+        } else if(axisType == AXIS_X && (maze[idxStatic][idx] == null || !maze[idxStatic][idx].equals(CellType.VIEWED))) {
+            points = -1;
+        } else if(axisType == AXIS_Y && (maze[idx][idxStatic] == null || !maze[idx][idxStatic].equals(CellType.VIEWED))) {
+            points = -1;
+        }
+        return points;
+    }
 
     public static boolean isLastMovementCorrect(String[][] maze, Coordinates actualPosition, String lastMove) {
         int distance = 2;
