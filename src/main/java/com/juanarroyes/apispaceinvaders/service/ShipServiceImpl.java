@@ -50,9 +50,8 @@ public class ShipServiceImpl {
         String move = shipCommander.getDecision();
         System.out.println("Move is: " + move);
         clearMaze();
-        saveSaveGame(stageData.getPlayerId(), maze, saveGameId);
+        //saveSaveGame(stageData.getPlayerId(), maze, saveGameId);
         shipCommander = null;
-        System.gc();
         return move;
     }
 
