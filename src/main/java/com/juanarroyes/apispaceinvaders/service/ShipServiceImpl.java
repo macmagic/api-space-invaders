@@ -30,6 +30,7 @@ public class ShipServiceImpl {
     public String moveShip(Stage stageData) {
         init(stageData);
         mazeDiscovery(stageData);
+        System.out.println("PLAYER ID: " + stageData.getPlayerId());
         MazeUtils.drawMaze(maze);
         String move = shipCommander.getDecision();
         System.out.println("Move is: " + move);
