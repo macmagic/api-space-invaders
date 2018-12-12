@@ -223,12 +223,12 @@ public class Detector {
                 case Moves.LEFT:
                     idx1 = area.getCordX1();
                     idx2 = actualPosition.getCordX() -1;
-                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_X, true);
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, true);
                     break;
                 case Moves.RIGHT:
                     idx1 = actualPosition.getCordX() + 1;
                     idx2 = area.getCordX2();
-                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_X, false);
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, false);
                     break;
                 default:
                     continue;
