@@ -98,7 +98,7 @@ public class Commander {
             !isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition))) {
             log.info("I have use the LAST DIRECTION");
             return lastDirection;
-        } else if (moveRecommended != null && !isNextCoordsInPathUsed(getNextCoordsByMove(moveRecommended, actualPosition))) {
+        } else if (moveRecommended != null && pointsMoveRecommended > pointsLastDirection) {
             log.info("I have use the RECOMMENDED DIRECTION");
             return moveRecommended;
         } else if(availableMoves.length > 0){
