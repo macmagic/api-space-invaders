@@ -61,6 +61,9 @@ public class Commander {
             log.info("Persecution enemies!!!!");
             Coordinates enemy = Detector.followBestEnemy(maze, actualPosition, potentialEnemies);
             move = Detector.directionOfTarget(actualPosition, enemy);
+        } else if(!neutralInvaders.isEmpty()) {
+            Coordinates bestNeutralInvader = Detector.followBestEnemy(maze, actualPosition, neutralInvaders);
+            move = Detector.directionOfTarget(actualPosition, bestNeutralInvader);
         } else {
             log.info("Traveler...");
             move = getShipTripDirection();
@@ -100,7 +103,7 @@ public class Commander {
                 (!isNextCoordsInPath || (isNextCoordsInPath && pointsLastDirection >= pointsMoveRecommended))) {
             log.info("I have use the LAST DIRECTION");
             return lastDirection;
-        } else if (moveRecommended != null) {
+        } else if (moveRecommended != null && pointsMoveRecommended > pointsLastDirection) {
             log.info("I have use the RECOMMENDED DIRECTION");
             return moveRecommended;
         } else if(availableMoves.length > 0){

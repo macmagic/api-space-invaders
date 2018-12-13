@@ -1,8 +1,6 @@
 #!/bin/bash
-ls -la
-cd /app
 
-ls -la
+cd /app
 
 if [ "$(ls -A release)" ];
 then
