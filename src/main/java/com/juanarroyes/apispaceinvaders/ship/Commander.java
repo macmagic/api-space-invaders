@@ -93,7 +93,7 @@ public class Commander {
         if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) &&
             !isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition))) {
             return lastDirection;
-        } else if (moveRecommended != null && !isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition))) {
+        } else if (moveRecommended != null && !isNextCoordsInPathUsed(getNextCoordsByMove(moveRecommended, actualPosition))) {
             return moveRecommended;
         } else if(availableMoves.length > 0){
             return availableMoves[new Random().nextInt(availableMoves.length)];
