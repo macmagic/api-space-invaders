@@ -99,6 +99,7 @@ public class Commander {
             log.info("I have use the LAST DIRECTION");
             return lastDirection;
         } else if (moveRecommended != null && pointsMoveRecommended > pointsLastDirection) {
+            pathUsed.clear();
             log.info("I have use the RECOMMENDED DIRECTION");
             return moveRecommended;
         } else if(availableMoves.length > 0){
