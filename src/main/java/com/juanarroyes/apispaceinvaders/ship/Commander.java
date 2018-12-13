@@ -96,7 +96,7 @@ public class Commander {
         int pointsMoveRecommended = Detector.checkDirectionRank(maze, area, actualPosition, moveRecommended);
         boolean isNextCoordsInPath = (lastDirection != null) ? isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition)) : false;
 
-        if(isNextCoordsInPathUsed(getNextCoordsByMove(moveRecommended, actualPosition))) {
+        if(moves.size() > 1 && isNextCoordsInPathUsed(getNextCoordsByMove(moveRecommended, actualPosition))) {
             moves.remove(0);
             moveRecommended = moves.get(0);
         }
