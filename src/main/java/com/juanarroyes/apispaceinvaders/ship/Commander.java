@@ -49,15 +49,19 @@ public class Commander {
         potentialEnemies = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
 
         if(fire && bestEnemyFire != null) {
+            log.info("Fire enemy!");
             String direction = Detector.directionOfTarget(actualPosition, bestEnemyFire);
             move = getMovement(direction, fire);
         } else if(fire && bestInvaderFire != null) {
+            log.info("Fire invader!");
             String direction = Detector.directionOfTarget(actualPosition, bestInvaderFire);
             move = getMovement(direction, fire);
         } else if(fire && !potentialEnemies.isEmpty()) {
+            log.info("Persecution enemies!!!!");
             Coordinates enemy = Detector.followBestEnemy(maze, actualPosition, potentialEnemies);
             move = Detector.directionOfTarget(actualPosition, enemy);
         } else {
+            log.info("Traveler...");
             move = getShipTripDirection();
         }
 
@@ -92,12 +96,16 @@ public class Commander {
 
         if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) &&
             !isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition))) {
+            log.info("I have use the LAST DIRECTION");
             return lastDirection;
         } else if (moveRecommended != null && !isNextCoordsInPathUsed(getNextCoordsByMove(moveRecommended, actualPosition))) {
+            log.info("I have use the RECOMMENDED DIRECTION");
             return moveRecommended;
         } else if(availableMoves.length > 0){
+            log.info("I have use the random available moves");
             return availableMoves[new Random().nextInt(availableMoves.length)];
         } else {
+            log.info("I have use the random moves");
             return MOVES[new Random().nextInt(MOVES.length)];
         }
     }
