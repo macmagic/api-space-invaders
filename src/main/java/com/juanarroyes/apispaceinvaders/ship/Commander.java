@@ -5,7 +5,6 @@ import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
 import lombok.extern.slf4j.Slf4j;
-import org.yaml.snakeyaml.util.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +26,7 @@ public class Commander {
     private List<Coordinates> pathUsed;
 
     private List<Coordinates> potentialEnemies;
+    private List<Coordinates> neutralInvaders;
 
     public Commander() {
 
@@ -47,6 +47,7 @@ public class Commander {
         Coordinates bestEnemyFire = getTargetDirectShot(CellType.ENEMY);
         Coordinates bestInvaderFire = getTargetDirectShot(CellType.INVADER);
         potentialEnemies = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
+        neutralInvaders = Detector.getNeutralInvaders(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
 
         if(fire && bestEnemyFire != null) {
             log.info("Fire enemy!");
@@ -60,6 +61,9 @@ public class Commander {
             log.info("Persecution enemies!!!!");
             Coordinates enemy = Detector.followBestEnemy(maze, actualPosition, potentialEnemies);
             move = Detector.directionOfTarget(actualPosition, enemy);
+        } else if(!neutralInvaders.isEmpty()) {
+            Coordinates bestNeutralInvader = Detector.followBestEnemy(maze, actualPosition, neutralInvaders);
+            move = Detector.directionOfTarget(actualPosition, bestNeutralInvader);
         } else {
             log.info("Traveler...");
             move = getShipTripDirection();
@@ -86,7 +90,6 @@ public class Commander {
     }
 
     private String getShipTripDirection() {
-
         String lastDirection = Detector.directionOfTarget(lastPosition, actualPosition);
         String enemyDirection = runAwayFromEnemies();
         String[] availableMoves = Detector.getAvailableMoves(maze, actualPosition, MOVES, enemyDirection);
@@ -95,8 +98,6 @@ public class Commander {
         String moveRecommended = getMoveRecommendedWithoutPath(moves, actualPosition);
         int pointsMoveRecommended = Detector.checkDirectionRank(maze, area, actualPosition, moveRecommended);
         boolean isNextCoordsInPath = (lastDirection != null) ? isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition)) : false;
-
-
 
         if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) &&
                 (!isNextCoordsInPath || (isNextCoordsInPath && pointsLastDirection >= pointsMoveRecommended))) {

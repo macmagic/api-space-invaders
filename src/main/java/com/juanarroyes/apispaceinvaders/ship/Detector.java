@@ -5,17 +5,20 @@ import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
 import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
+import javafx.scene.control.Cell;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 public class Detector {
 
     private static final int AXIS_X = 1;
     private static final int AXIS_Y = 2;
+
+    private static final String DETECTION_ENEMIES = "ENEMIES";
+    private static final String DETECTION_NEUTRAL_INVADERS = "NEUTRALS";
+
 
     /**
      *
@@ -139,6 +142,46 @@ public class Detector {
     }
 
     public static List<Coordinates> getPotentialThreats(String[][] maze, Coordinates position, int distance) {
+        return detectObjectsByType(maze, position, DETECTION_ENEMIES, distance);
+    }
+
+    public static List<Coordinates> getNeutralInvaders(String[][] maze, Coordinates position, int distance) {
+        return detectObjectsByType(maze, position, DETECTION_NEUTRAL_INVADERS, distance);
+    }
+
+    private static List<Coordinates> detectObjectsByType(String[][] maze, Coordinates position, String type, int distance) {
+        Set<String> targets = new HashSet<>();
+
+        if(type.equals(DETECTION_ENEMIES)) {
+            targets.add(CellType.ENEMY);
+            targets.add(CellType.INVADER);
+        } else if(type.equals(DETECTION_NEUTRAL_INVADERS)) {
+            targets.add(CellType.INVADER_NEUTRAL);
+        } else {
+            targets.add(CellType.ENEMY);
+            targets.add(CellType.INVADER);
+            targets.add(CellType.INVADER_NEUTRAL);
+        }
+
+        int cordY1 = ((position.getCordY() - distance) < 0) ? 0 : position.getCordY() - distance;
+        int cordX1 = ((position.getCordX() - distance) < 0) ? 0 : position.getCordX() - distance;
+        int cordY2 = ((position.getCordY() + distance) >= maze.length) ? maze.length -1 : position.getCordY() + distance;
+        int cordX2 = ((position.getCordX() + distance) >= maze[0].length) ? maze.length - 1 : position.getCordX() + distance;
+
+        List<Coordinates> objects = new ArrayList<>();
+
+        for(int y = cordY1; y <= cordY2; y++) {
+            for(int x = cordX1; x <= cordX2; x++) {
+                String cellValue = maze[y][x];
+                if(cellValue != null && targets.contains(cellValue) && !isObstacleBetweenTwoObjects(maze, position, new Coordinates(y, x))) {
+                    objects.add(new Coordinates(y, x));
+                }
+            }
+        }
+        return objects;
+    }
+
+    /*public static List<Coordinates> getPotentialThreats(String[][] maze, Coordinates position, int distance) {
         int cordY1 = ((position.getCordY() - distance) < 0) ? 0 : position.getCordY() - distance;
         int cordX1 = ((position.getCordX() - distance) < 0) ? 0 : position.getCordX() - distance;
         int cordY2 = ((position.getCordY() + distance) >= maze.length) ? maze.length -1 : position.getCordY() + distance;
@@ -156,7 +199,7 @@ public class Detector {
             }
         }
         return threats;
-    }
+    }*/
 
     public static Coordinates followBestEnemy(String[][] maze, Coordinates actualPosition, List<Coordinates> threats) {
 
