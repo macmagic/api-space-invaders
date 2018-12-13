@@ -91,12 +91,12 @@ public class Commander {
         String enemyDirection = runAwayFromEnemies();
         String[] availableMoves = Detector.getAvailableMoves(maze, actualPosition, MOVES, enemyDirection);
         List<String> moves = Detector.getRecommendedDirection(maze, area, actualPosition, availableMoves);
-        String moveRecommended = moves.get(0);
         int pointsLastDirection = Detector.checkDirectionRank(maze, area, actualPosition, lastDirection);
+        String moveRecommended = getMoveRecommendedWithoutPath(moves, actualPosition);
         int pointsMoveRecommended = Detector.checkDirectionRank(maze, area, actualPosition, moveRecommended);
         boolean isNextCoordsInPath = (lastDirection != null) ? isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition)) : false;
 
-        String moveTest = getMoveRecommendedWithoutPath(moves, actualPosition);
+
 
         if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) &&
                 (!isNextCoordsInPath || (isNextCoordsInPath && pointsLastDirection >= pointsMoveRecommended))) {
