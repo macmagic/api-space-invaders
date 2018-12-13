@@ -93,9 +93,10 @@ public class Commander {
         String moveRecommended = Detector.getRecommendedDirection(maze, area, actualPosition, availableMoves);
         int pointsLastDirection = Detector.checkDirectionRank(maze, area, actualPosition, lastDirection);
         int pointsMoveRecommended = Detector.checkDirectionRank(maze, area, actualPosition, moveRecommended);
+        boolean isNextCoordsInPath = (lastDirection != null) ? isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition)) : false;
 
-        if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) && pointsLastDirection >= pointsMoveRecommended &&
-            !isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition))) {
+        if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) &&
+                (!isNextCoordsInPath || (isNextCoordsInPath && pointsLastDirection >= pointsMoveRecommended))) {
             log.info("I have use the LAST DIRECTION");
             return lastDirection;
         } else if (moveRecommended != null && pointsMoveRecommended > pointsLastDirection) {
