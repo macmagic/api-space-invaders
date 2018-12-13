@@ -96,10 +96,7 @@ public class Commander {
         int pointsMoveRecommended = Detector.checkDirectionRank(maze, area, actualPosition, moveRecommended);
         boolean isNextCoordsInPath = (lastDirection != null) ? isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition)) : false;
 
-        if(moves.size() > 1 && isNextCoordsInPathUsed(getNextCoordsByMove(moveRecommended, actualPosition))) {
-            moves.remove(0);
-            moveRecommended = moves.get(0);
-        }
+        String moveTest = getMoveRecommendedWithoutPath(moves, actualPosition);
 
         if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) &&
                 (!isNextCoordsInPath || (isNextCoordsInPath && pointsLastDirection >= pointsMoveRecommended))) {
@@ -192,11 +189,24 @@ public class Commander {
     }
 
     public boolean isNextCoordsInPathUsed(Coordinates nextCoords) {
-        for(Coordinates coords : pathUsed) {
-            if(coords.getCordX() == nextCoords.getCordX() && coords.getCordY() == nextCoords.getCordY()) {
+        for (Coordinates coords : pathUsed) {
+            if (coords.getCordX() == nextCoords.getCordX() && coords.getCordY() == nextCoords.getCordY()) {
                 return true;
             }
         }
         return false;
+    }
+
+    private String getMoveRecommendedWithoutPath(List<String> moves, Coordinates actualPosition) {
+        if(moves.isEmpty()) {
+            return null;
+        } else if(moves.size() == 1) {
+            return moves.get(0);
+        } else if(!isNextCoordsInPathUsed(getNextCoordsByMove(moves.get(0), actualPosition))) {
+            return moves.get(0);
+        } else {
+            moves.remove(0);
+            return getMoveRecommendedWithoutPath(moves, actualPosition);
+        }
     }
 }
