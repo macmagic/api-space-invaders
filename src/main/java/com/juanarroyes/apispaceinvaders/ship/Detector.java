@@ -242,6 +242,39 @@ public class Detector {
         return moveSelected;
     }
 
+    public static int checkDirectionRank(String[][] maze, Area area, Coordinates actualPosition, String move) {
+        int points = 0;
+        int idx1;
+        int idx2;
+
+        switch(move) {
+            case Moves.DOWN:
+                idx1 = actualPosition.getCordY()+1;
+                idx2 = area.getCordY2();
+                points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, false);
+                break;
+            case Moves.UP:
+                idx1 = area.getCordY1();
+                idx2 = actualPosition.getCordY()-1;
+                points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, true);
+                break;
+            case Moves.LEFT:
+                idx1 = area.getCordX1();
+                idx2 = actualPosition.getCordX() -1;
+                points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, true);
+                break;
+            case Moves.RIGHT:
+                idx1 = actualPosition.getCordX() + 1;
+                idx2 = area.getCordX2();
+                points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, false);
+                break;
+            default:
+                return points;
+
+        }
+        return points;
+    }
+
     private static int checkDirection(String[][] maze, int idxStart, int idxFinal, int idxStatic, int axisType, boolean reverse) {
         int points = 0;
         int idx;
@@ -287,28 +320,28 @@ public class Detector {
         return points;
     }
 
-    public static boolean isLastMovementCorrect(String[][] maze, Coordinates actualPosition, String lastMove) {
+    public static boolean isLastMovementCorrect(String[][] maze, Area area, Coordinates actualPosition, String lastMove) {
         int distance = 4;
         if(lastMove.equals(Moves.RIGHT)) {
-            for(int x = actualPosition.getCordX(); x <= actualPosition.getCordX() + distance; x++) {
+            for(int x = actualPosition.getCordX(); x <= area.getCordX2(); x++) {
                 if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
                     return false;
                 }
             }
         } else if(lastMove.equals(Moves.LEFT)) {
-            for(int x = actualPosition.getCordX(); x >= actualPosition.getCordX() - distance; x--) {
+            for(int x = actualPosition.getCordX(); x >= area.getCordX1(); x--) {
                 if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
                     return false;
                 }
             }
         } else if(lastMove.equals(Moves.UP)) {
-            for(int y = actualPosition.getCordY(); y >= actualPosition.getCordY() - distance; y--) {
+            for(int y = actualPosition.getCordY(); y >= area.getCordY1(); y--) {
                 if(maze[y][actualPosition.getCordX()] != null &&maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
                     return false;
                 }
             }
         } else if(lastMove.equals(Moves.DOWN)) {
-            for(int y = actualPosition.getCordY(); y <= actualPosition.getCordY() + distance; y++) {
+            for(int y = actualPosition.getCordY(); y <= area.getCordY2(); y++) {
                 if(maze[y][actualPosition.getCordX()] != null &&maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
                     return false;
                 }
