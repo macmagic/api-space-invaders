@@ -8,6 +8,7 @@ import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -201,12 +202,14 @@ public class Detector {
         }
     }
 
-    public static String getRecommendedDirection(String[][] maze, Area area, Coordinates actualPosition, String[] availableMoves) {
+    public static List<String> getRecommendedDirection(String[][] maze, Area area, Coordinates actualPosition, String[] availableMoves) {
         int lastPoints = 0;
         String moveSelected = null;
+        int topPoints = 0;
         int idx1;
         int idx2;
         int points;
+        List<String> movesOrdered = new ArrayList<>();
 
         for(String move : availableMoves) {
             switch(move) {
@@ -234,12 +237,29 @@ public class Detector {
                     continue;
             }
 
-            if(lastPoints < points) {
+
+            if(topPoints <= points) {
+                movesOrdered.add(0, move);
+
+                /*movesOrdered = Arrays.copyOf(movesOrdered, movesOrdered.length+1);
+                movesOrdered[0]*/
                 moveSelected = move;
+                topPoints = points;
+                lastPoints = points;
+            } else if(lastPoints < points) {
+                List<String> swap = new ArrayList<>();
+                swap.addAll(movesOrdered);
+                movesOrdered.add(0, swap.get(0));
+                swap.remove(0);
+                movesOrdered.add(move);
+                movesOrdered.addAll(swap);
+                swap = null;
+            } else {
+                movesOrdered.add(move);
                 lastPoints = points;
             }
         }
-        return moveSelected;
+        return movesOrdered;
     }
 
     public static int checkDirectionRank(String[][] maze, Area area, Coordinates actualPosition, String move) {
