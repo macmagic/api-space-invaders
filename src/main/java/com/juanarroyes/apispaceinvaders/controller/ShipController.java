@@ -35,8 +35,7 @@ public class ShipController {
 
     @PostMapping("/name")
     public ResponseEntity<NameResponse> getWhoAmI() {
-        String nameRand = name + String.valueOf(new Random().nextInt(30000));
-        NameResponse response = new NameResponse(nameRand, email);
+        NameResponse response = new NameResponse(name, email);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
