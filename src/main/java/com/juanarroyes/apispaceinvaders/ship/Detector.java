@@ -247,6 +247,10 @@ public class Detector {
         int idx1;
         int idx2;
 
+        if(move == null) {
+            return points;
+        }
+
         switch(move) {
             case Moves.DOWN:
                 idx1 = actualPosition.getCordY()+1;
