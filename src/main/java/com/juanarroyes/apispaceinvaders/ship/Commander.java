@@ -71,9 +71,9 @@ public class Commander {
         int pointsLastDirection = Detector.checkDirectionRank(maze, area, actualPosition, lastDirection);
         int pointsMoveRecommended = Detector.checkDirectionRank(maze, area, actualPosition, moveRecommended);
 
-        if(lastDirection != null && Detector.isLastMovementCorrect(maze, area, actualPosition, lastDirection) && Arrays.stream(availableMoves).anyMatch(lastDirection::equals)) {
+        if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) /*&& (pointsLastDirection >= pointsMoveRecommended) && Detector.isLastMovementCorrect(maze, area, actualPosition, lastDirection)*/) {
             return lastDirection;
-        } else if(moveRecommended != null) {
+        } else if (moveRecommended != null) {
             return moveRecommended;
         } else if(availableMoves.length > 0){
             return availableMoves[new Random().nextInt(availableMoves.length)];
