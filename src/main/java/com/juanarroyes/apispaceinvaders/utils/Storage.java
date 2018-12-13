@@ -1,5 +1,9 @@
 package com.juanarroyes.apispaceinvaders.utils;
 
+import com.juanarroyes.apispaceinvaders.dto.Coordinates;
+
+import java.util.List;
+
 public class Storage {
 
     private int width;
@@ -7,6 +11,8 @@ public class Storage {
     private int height;
 
     private String[][] maze;
+
+    private List<Coordinates> pathUsed;
 
     public Storage() {
 
@@ -40,5 +46,13 @@ public class Storage {
 
     public void setMaze(String[][] maze) {
         this.maze = maze;
+    }
+
+    public List<Coordinates> getPathUsed() {
+        return pathUsed;
+    }
+
+    public void setPathUsed(List<Coordinates> pathUsed) {
+        this.pathUsed = pathUsed;
     }
 }

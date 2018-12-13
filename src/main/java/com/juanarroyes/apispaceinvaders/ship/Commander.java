@@ -24,6 +24,7 @@ public class Commander {
     private Coordinates actualPosition;
     private Coordinates lastPosition;
     private boolean fire;
+    private List<Coordinates> pathUsed;
 
     private List<Coordinates> potentialEnemies;
 
@@ -31,13 +32,14 @@ public class Commander {
 
     }
 
-    public Commander(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition, boolean fire) {
+    public Commander(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition, boolean fire, List<Coordinates> pathUsed) {
         this.maze = maze;
         this.area = area;
         this.actualPosition = actualPosition;
         this.lastPosition = lastPosition;
         this.fire = fire;
         this.potentialEnemies = new ArrayList<>();
+        this.pathUsed = pathUsed;
     }
 
     public String getDecision() {
@@ -58,8 +60,25 @@ public class Commander {
         } else {
             move = getShipTripDirection();
         }
-        return move;
 
+        if(move != null && getNextCoordsByMove(move, actualPosition) != null) {
+            pathUsed.add(getNextCoordsByMove(move, actualPosition));
+        }
+        return move;
+    }
+
+    private Coordinates getNextCoordsByMove(String move, Coordinates actualPosition) {
+        switch(move) {
+            case Moves.DOWN:
+                return new Coordinates(actualPosition.getCordY()+1, actualPosition.getCordX());
+            case Moves.UP:
+                return new Coordinates(actualPosition.getCordY()-1, actualPosition.getCordX());
+            case Moves.LEFT:
+                return new Coordinates(actualPosition.getCordY(), actualPosition.getCordX()-1);
+            case Moves.RIGHT:
+                return new Coordinates(actualPosition.getCordY(), actualPosition.getCordX()+1);
+        }
+        return null;
     }
 
     private String getShipTripDirection() {
@@ -71,7 +90,8 @@ public class Commander {
         int pointsLastDirection = Detector.checkDirectionRank(maze, area, actualPosition, lastDirection);
         int pointsMoveRecommended = Detector.checkDirectionRank(maze, area, actualPosition, moveRecommended);
 
-        if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) /*&& (pointsLastDirection >= pointsMoveRecommended) && Detector.isLastMovementCorrect(maze, area, actualPosition, lastDirection)*/) {
+        if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) &&
+            !isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition))) {
             return lastDirection;
         } else if (moveRecommended != null) {
             return moveRecommended;
@@ -150,5 +170,18 @@ public class Commander {
             movement = "fire-";
         }
         return movement + direction;
+    }
+
+    public List<Coordinates> getPathUsed() {
+        return pathUsed;
+    }
+
+    public boolean isNextCoordsInPathUsed(Coordinates nextCoords) {
+        for(Coordinates coords : pathUsed) {
+            if(coords.getCordX() == nextCoords.getCordX() && coords.getCordY() == nextCoords.getCordY()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

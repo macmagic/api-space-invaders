@@ -24,6 +24,8 @@ public class ShipServiceImpl {
 
     private Map<String, Storage> games = new HashMap<>();
 
+    private List<Coordinates> pathUsed;
+
     public ShipServiceImpl() {
     }
 
@@ -34,9 +36,10 @@ public class ShipServiceImpl {
         mazeDiscovery(stageData);
         log.info("The maze now is: \n" + MazeUtils.drawMazeToLog(maze));
         String move = shipCommander.getDecision();
+        pathUsed = shipCommander.getPathUsed();
         log.info("Next action is: " + move);
         clearMaze();
-        storageGame(stageData.getPlayerId(), maze);
+        storageGame(stageData.getPlayerId(), maze, pathUsed);
         shipCommander = null;
         return move;
     }
@@ -49,14 +52,16 @@ public class ShipServiceImpl {
         Storage storage = games.get(stageData.getGameId());
         if(storage != null) {
             maze = storage.getMaze();
+            pathUsed = storage.getPathUsed();
         } else {
             int height = stageData.getMazeSize().getHeight();
             int width = stageData.getMazeSize().getWidth();
             maze = new String[height][width];
             maze = MazeUtils.addLimitWalls(maze, CellType.WALL);
+            pathUsed = new ArrayList<>();
         }
 
-        shipCommander = new Commander(maze, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
+        shipCommander = new Commander(maze, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire(), pathUsed);
     }
 
     private void mazeDiscovery(Stage stageData) {
@@ -120,7 +125,7 @@ public class ShipServiceImpl {
         return objects;
     }
 
-    private void storageGame(String playerId, String[][] maze) {
+    private void storageGame(String playerId, String[][] maze, List<Coordinates> pathUsed) {
         Storage storage = games.get(playerId);
         if(storage == null) {
             storage = new Storage();
@@ -129,6 +134,7 @@ public class ShipServiceImpl {
         storage.setHeight(maze.length);
         storage.setWidth(maze[0].length);
         storage.setMaze(maze);
+        storage.setPathUsed(pathUsed);
         games.put(playerId, storage);
     }
 }
