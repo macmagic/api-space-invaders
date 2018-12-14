@@ -43,7 +43,7 @@ public class Detector {
         return (distance < 0) ? distance * -1 : distance;
     }
 
-    public static boolean isObstacleBetweenTwoObjects(String[][] maze, Coordinates source, Coordinates target) {
+    private static boolean isObstacleBetweenTwoObjects(String[][] maze, Coordinates source, Coordinates target) {
         int y1;
         int y2;
         int x1;
@@ -150,15 +150,19 @@ public class Detector {
     private static List<Coordinates> detectObjectsByType(String[][] maze, Coordinates position, String type, int distance) {
         Set<String> targets = new HashSet<>();
 
-        if(type.equals(DETECTION_ENEMIES)) {
-            targets.add(CellType.ENEMY);
-            targets.add(CellType.INVADER);
-        } else if(type.equals(DETECTION_NEUTRAL_INVADERS)) {
-            targets.add(CellType.INVADER_NEUTRAL);
-        } else {
-            targets.add(CellType.ENEMY);
-            targets.add(CellType.INVADER);
-            targets.add(CellType.INVADER_NEUTRAL);
+        switch(type) {
+            case DETECTION_ENEMIES:
+                targets.add(CellType.ENEMY);
+                targets.add(CellType.INVADER);
+                break;
+            case DETECTION_NEUTRAL_INVADERS:
+                targets.add(CellType.INVADER_NEUTRAL);
+                break;
+            default:
+                targets.add(CellType.ENEMY);
+                targets.add(CellType.INVADER);
+                targets.add(CellType.INVADER_NEUTRAL);
+                break;
         }
 
         int cordY1 = ((position.getCordY() - distance) < 0) ? 0 : position.getCordY() - distance;
@@ -340,6 +344,16 @@ public class Detector {
         return points;
     }
 
+    /**
+     *
+     * @param maze The actual maze
+     * @param idxStart The start index foreach
+     * @param idxFinal The final index foreach
+     * @param idxStatic The static index
+     * @param axisType The type of axis analyzed, X or Y.
+     * @param reverse Indicate the loop is 1,2,3 or 3,2,1
+     * @return
+     */
     private static int checkDirection(String[][] maze, int idxStart, int idxFinal, int idxStatic, int axisType, boolean reverse) {
         int points = 0;
         int idx;
@@ -367,6 +381,14 @@ public class Detector {
         return points;
     }
 
+    /**
+     *
+     * @param maze The actual maze to analyze
+     * @param axisType The axis checking, Y or X
+     * @param idx The actual index on maze.
+     * @param idxStatic The static index on maze
+     * @return Return 1 point if cell is VIEWED or LAST_POSITION, return -1 if not.
+     */
     private static int getPointsByConditions(String[][] maze, int axisType, int idx, int idxStatic) {
         int points = 0;
         if(axisType == AXIS_X &&
@@ -385,8 +407,15 @@ public class Detector {
         return points;
     }
 
+    /**
+     *
+     * @param maze
+     * @param area
+     * @param actualPosition
+     * @param lastMove
+     * @return
+     */
     public static boolean isLastMovementCorrect(String[][] maze, Area area, Coordinates actualPosition, String lastMove) {
-        int distance = 4;
         if(lastMove.equals(Moves.RIGHT)) {
             for(int x = actualPosition.getCordX(); x <= area.getCordX2(); x++) {
                 if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {

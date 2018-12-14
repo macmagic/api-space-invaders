@@ -26,11 +26,6 @@ public class Commander {
     private List<Coordinates> pathUsed;
 
     private List<Coordinates> potentialEnemies;
-    private List<Coordinates> neutralInvaders;
-
-    public Commander() {
-
-    }
 
     public Commander(String[][] maze, Area area, Coordinates actualPosition, Coordinates lastPosition, boolean fire, List<Coordinates> pathUsed) {
         this.maze = maze;
@@ -47,7 +42,7 @@ public class Commander {
         Coordinates bestEnemyFire = getTargetDirectShot(CellType.ENEMY);
         Coordinates bestInvaderFire = getTargetDirectShot(CellType.INVADER);
         potentialEnemies = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
-        neutralInvaders = Detector.getNeutralInvaders(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
+        List<Coordinates> neutralInvaders = Detector.getNeutralInvaders(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
 
         if(fire && bestEnemyFire != null) {
             log.info("Fire enemy!");
@@ -158,7 +153,7 @@ public class Commander {
         return enemy;
     }
 
-    public String runAwayFromEnemies() {
+    private String runAwayFromEnemies() {
         String enemyDirection = null;
         int lastDistance = 0;
 
@@ -189,7 +184,7 @@ public class Commander {
         return pathUsed;
     }
 
-    public boolean isNextCoordsInPathUsed(Coordinates nextCoords) {
+    private boolean isNextCoordsInPathUsed(Coordinates nextCoords) {
         for (Coordinates coords : pathUsed) {
             if (coords.getCordX() == nextCoords.getCordX() && coords.getCordY() == nextCoords.getCordY()) {
                 return true;
