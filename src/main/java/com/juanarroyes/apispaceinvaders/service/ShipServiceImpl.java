@@ -13,7 +13,7 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class ShipServiceImpl {
+public class ShipServiceImpl implements ShipService {
 
     @Value("${app.logpath}")
     private String path;
@@ -42,6 +42,10 @@ public class ShipServiceImpl {
         storageGame(stageData.getPlayerId(), maze, pathUsed);
         shipCommander = null;
         return move;
+    }
+
+    public void sayHello() {
+        System.out.println("hello number: " + new Random().nextInt(100000));
     }
 
     /**
