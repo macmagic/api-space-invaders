@@ -5,6 +5,7 @@ import com.juanarroyes.apispaceinvaders.request.MoveRequest;
 import com.juanarroyes.apispaceinvaders.response.MoveResponse;
 import com.juanarroyes.apispaceinvaders.response.NameResponse;
 import com.juanarroyes.apispaceinvaders.service.ShipService;
+import com.juanarroyes.apispaceinvaders.utils.Storage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;

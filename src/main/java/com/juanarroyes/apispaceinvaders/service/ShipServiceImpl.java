@@ -26,7 +26,10 @@ public class ShipServiceImpl implements ShipService {
 
     private List<Coordinates> pathUsed;
 
+    private Storage storage;
+
     public ShipServiceImpl() {
+        storage = new Storage();
     }
 
     public String moveShip(Stage stageData) {
@@ -44,26 +47,24 @@ public class ShipServiceImpl implements ShipService {
         return move;
     }
 
-    public void sayHello() {
-        System.out.println("hello number: " + new Random().nextInt(100000));
-    }
 
     /**
      *
      * @param stageData
      */
     private void init(Stage stageData) {
-        Storage storage = games.get(stageData.getGameId());
-        if(storage != null) {
+
+        /*if(storage != null) {
             maze = storage.getMaze();
             pathUsed = storage.getPathUsed();
-        } else {
+        } else {*/
             int height = stageData.getMazeSize().getHeight();
             int width = stageData.getMazeSize().getWidth();
             maze = new String[height][width];
             maze = MazeUtils.addLimitWalls(maze, CellType.WALL);
             pathUsed = new ArrayList<>();
-        }
+            storage.saveGame(stageData.getPlayerId(), stageData);
+        //}
 
         shipCommander = new Commander(maze, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire(), pathUsed);
     }
@@ -135,10 +136,10 @@ public class ShipServiceImpl implements ShipService {
             storage = new Storage();
         }
 
-        storage.setHeight(maze.length);
+        /*storage.setHeight(maze.length);
         storage.setWidth(maze[0].length);
         storage.setMaze(maze);
-        storage.setPathUsed(pathUsed);
+        storage.setPathUsed(pathUsed);*/
         games.put(playerId, storage);
     }
 }

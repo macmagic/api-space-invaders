@@ -1,58 +1,70 @@
 package com.juanarroyes.apispaceinvaders.utils;
 
-import com.juanarroyes.apispaceinvaders.dto.Coordinates;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.juanarroyes.apispaceinvaders.dto.Stage;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
+@Component
+@Slf4j
 public class Storage {
 
-    private int width;
+    private static final String DEFAULT_FILENAME = "savegame.json";
 
-    private int height;
+    private static final String DEFAULT_PATH = "/tmp/spaceinvaders/";
 
-    private String[][] maze;
+    @Value("${app.savegamepath}")
+    private String saveGamePath;
 
-    private List<Coordinates> pathUsed;
+    private ObjectMapper mapper;
 
     public Storage() {
+        this.mapper = new ObjectMapper();
+    }
+
+    public void saveGame(String playerId, Stage data) {
+        try {
+            String json = mapper.writeValueAsString(data);
+            write(data.getPlayerId(), json);
+        } catch (JsonProcessingException e) {
+            log.error("Error when convert object to json string", e);
+        }
 
     }
 
-    public Storage(int width, int height, String[][] maze) {
-        this.width = width;
-        this.height = height;
-        this.maze = maze;
-    }
+    private void write(String playerId, String json) {
+        FileWriter fw = null;
 
-    public int getWidth() {
-        return width;
-    }
+        try {
+            File directory = new File(DEFAULT_PATH);
+            if(!directory.exists()) {
+                directory.mkdir();
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append(json);
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
+            String filename = DEFAULT_PATH + DEFAULT_FILENAME.replace("savegame", "savegame_" + playerId);
+            log.info(filename);
+            fw = new FileWriter(filename, false);
+            fw.write(sb.toString());
+            fw.close();
+        } catch(IOException e) {
+            log.error("Error when write file: " + e.getMessage(), e);
+        } finally {
+            try {
+                if(fw != null) {
+                    fw.close();
+                }
+            } catch(IOException e) {
+                log.error("Error when try to close file: " + e.getMessage(), e);
+            }
+        }
 
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public String[][] getMaze() {
-        return maze;
-    }
-
-    public void setMaze(String[][] maze) {
-        this.maze = maze;
-    }
-
-    public List<Coordinates> getPathUsed() {
-        return pathUsed;
-    }
-
-    public void setPathUsed(List<Coordinates> pathUsed) {
-        this.pathUsed = pathUsed;
     }
 }

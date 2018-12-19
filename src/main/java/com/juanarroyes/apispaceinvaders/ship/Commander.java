@@ -7,7 +7,6 @@ import com.juanarroyes.apispaceinvaders.dto.Coordinates;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -24,6 +23,7 @@ public class Commander {
     private Coordinates lastPosition;
     private boolean fire;
     private List<Coordinates> pathUsed;
+    private int counter;
 
     private List<Coordinates> potentialEnemies;
 
@@ -35,6 +35,7 @@ public class Commander {
         this.fire = fire;
         this.potentialEnemies = new ArrayList<>();
         this.pathUsed = pathUsed;
+        this.counter = new Random().nextInt(8888888);
     }
 
     public String getDecision() {
@@ -86,24 +87,23 @@ public class Commander {
 
     private String getShipTripDirection() {
         String lastDirection = Detector.directionOfTarget(lastPosition, actualPosition);
-        String enemyDirection = runAwayFromEnemies();
-        String[] availableMoves = Detector.getAvailableMoves(maze, actualPosition, MOVES, enemyDirection);
+        List<String> availableMoves = Detector.getAvailableMovesByObject(maze, actualPosition, MOVES);
         List<String> moves = Detector.getRecommendedDirection(maze, area, actualPosition, availableMoves);
         int pointsLastDirection = Detector.checkDirectionRank(maze, area, actualPosition, lastDirection);
         String moveRecommended = getMoveRecommendedWithoutPath(moves, actualPosition);
         int pointsMoveRecommended = Detector.checkDirectionRank(maze, area, actualPosition, moveRecommended);
         boolean isNextCoordsInPath = (lastDirection != null) ? isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition)) : false;
 
-        if(lastDirection != null && Arrays.stream(availableMoves).anyMatch(lastDirection::equals) &&
+        if(lastDirection != null && availableMoves.contains(lastDirection) &&
                 (!isNextCoordsInPath || (isNextCoordsInPath && pointsLastDirection >= pointsMoveRecommended))) {
             log.info("I have use the LAST DIRECTION");
             return lastDirection;
         } else if (moveRecommended != null && pointsMoveRecommended > pointsLastDirection) {
             log.info("I have use the RECOMMENDED DIRECTION");
             return moveRecommended;
-        } else if(availableMoves.length > 0){
+        } else if(!availableMoves.isEmpty()){
             log.info("I have use the random available moves");
-            return availableMoves[new Random().nextInt(availableMoves.length)];
+            return availableMoves.get(new Random().nextInt(availableMoves.size()));
         } else {
             log.info("I have use the random moves");
             return MOVES[new Random().nextInt(MOVES.length)];
