@@ -1,7 +1,9 @@
 package com.juanarroyes.apispaceinvaders.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.dto.*;
+import com.juanarroyes.apispaceinvaders.model.Game;
 import com.juanarroyes.apispaceinvaders.ship.Commander;
 import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
 import com.juanarroyes.apispaceinvaders.utils.Storage;
@@ -26,10 +28,13 @@ public class ShipServiceImpl implements ShipService {
 
     private List<Coordinates> pathUsed;
 
+    private ObjectMapper mapper;
+
     private Storage storage;
 
     public ShipServiceImpl() {
         storage = new Storage();
+        mapper = new ObjectMapper();
     }
 
     public String moveShip(Stage stageData) {
@@ -128,6 +133,15 @@ public class ShipServiceImpl implements ShipService {
         }
 
         return objects;
+    }
+
+    public void saveGame(int height, int width, List<ObjectDetect> objects) {
+        Game actualGame = new Game();
+        actualGame.setMazeHeight(height);
+        actualGame.setMazeWidth(width);
+        String lastObjectsFound = mapper.writeValueAsString(objects);
+
+
     }
 
     private void storageGame(String playerId, String[][] maze, List<Coordinates> pathUsed) {
