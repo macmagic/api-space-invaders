@@ -1,5 +1,6 @@
 package com.juanarroyes.apispaceinvaders.model;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -7,9 +8,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "game")
+@Table(name = "game_status")
 @EntityListeners(AuditingEntityListener.class)
-public class Game implements Serializable {
+public class GameStatus implements Serializable {
 
     @Id
     private String id;
@@ -23,6 +24,12 @@ public class Game implements Serializable {
     @Column(name = "last_objects_found")
     private String lastObjectsFound;
 
+    @Column(name = "walls_found")
+    private String wallsFound;
+
+    @CreationTimestamp
+    @Column(nullable =  false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date created;
 
     public String getId() {
@@ -55,6 +62,14 @@ public class Game implements Serializable {
 
     public void setLastObjectsFound(String lastObjectsFound) {
         this.lastObjectsFound = lastObjectsFound;
+    }
+
+    public String getWallsFound() {
+        return wallsFound;
+    }
+
+    public void setWallsFound(String wallsFound) {
+        this.wallsFound = wallsFound;
     }
 
     public Date getCreated() {

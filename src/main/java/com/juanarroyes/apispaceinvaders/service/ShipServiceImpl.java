@@ -1,159 +1,89 @@
 package com.juanarroyes.apispaceinvaders.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.juanarroyes.apispaceinvaders.constants.CellType;
-import com.juanarroyes.apispaceinvaders.dto.*;
-import com.juanarroyes.apispaceinvaders.model.Game;
-import com.juanarroyes.apispaceinvaders.ship.Commander;
-import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
-import com.juanarroyes.apispaceinvaders.utils.Storage;
+import com.juanarroyes.apispaceinvaders.dto.Coordinates;
+import com.juanarroyes.apispaceinvaders.dto.ObjectDetect;
+import com.juanarroyes.apispaceinvaders.dto.Stage;
+import com.juanarroyes.apispaceinvaders.model.GameStatus;
+import com.juanarroyes.apispaceinvaders.repository.GameStatusRepository;
+import com.juanarroyes.apispaceinvaders.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 public class ShipServiceImpl implements ShipService {
 
-    @Value("${app.logpath}")
-    private String path;
-
-    private String[][] maze;
-
-    private Commander shipCommander;
-
-    private Map<String, Storage> games = new HashMap<>();
-
-    private List<Coordinates> pathUsed;
+    private GameStatusRepository gameStatusRepository;
 
     private ObjectMapper mapper;
 
-    private Storage storage;
+    private String[][] maze;
 
-    public ShipServiceImpl() {
-        storage = new Storage();
-        mapper = new ObjectMapper();
+    public ShipServiceImpl(GameStatusRepository gameStatusRepository) {
+        this.gameStatusRepository = gameStatusRepository;
+        this.mapper = new ObjectMapper();
     }
 
+    @Override
     public String moveShip(Stage stageData) {
-        init(stageData);
-        log.info("Game info: {player_id: " + stageData.getPlayerId() + ", height: " + stageData.getMazeSize().getHeight() + ", width: " + stageData.getMazeSize().getWidth() + "}");
-        log.info("Discover maze area to get objects to calculate next action...");
-        mazeDiscovery(stageData);
-        log.info("The maze now is: \n" + MazeUtils.drawMazeToLog(maze));
-        String move = shipCommander.getDecision();
-        pathUsed = shipCommander.getPathUsed();
-        log.info("Next action is: " + move);
-        clearMaze();
-        storageGame(stageData.getPlayerId(), maze, pathUsed);
-        shipCommander = null;
-        return move;
+        return "left";
     }
+
+    private void autoload(Stage stageData) {
+        String id = Utils.getGameStatusId(stageData.getGameId(), stageData.getPlayerId());
+        GameStatus gameStatus = getGameStatusById(id);
+        int height;
+        int width;
+
+        if(gameStatus != null) {
+            height = gameStatus.getMazeHeight();
+            width = gameStatus.getMazeWidth();
+            maze = new String[height][width];
+        } else {
+            height = stageData.getMazeSize().getHeight();
+            width = stageData.getMazeSize().getWidth();
+            maze = new String[height][width];
+        }
+    }
+
 
 
     /**
      *
-     * @param stageData
+     * @param id
+     * @return
      */
-    private void init(Stage stageData) {
-
-        /*if(storage != null) {
-            maze = storage.getMaze();
-            pathUsed = storage.getPathUsed();
-        } else {*/
-            int height = stageData.getMazeSize().getHeight();
-            int width = stageData.getMazeSize().getWidth();
-            maze = new String[height][width];
-            maze = MazeUtils.addLimitWalls(maze, CellType.WALL);
-            pathUsed = new ArrayList<>();
-            storage.saveGame(stageData.getPlayerId(), stageData);
-        //}
-
-        shipCommander = new Commander(maze, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire(), pathUsed);
+    public GameStatus getGameStatusById(String id) {
+        Optional<GameStatus> result = gameStatusRepository.findById(id);
+        return result.isPresent() ? result.get() : null;
     }
 
-    private void mazeDiscovery(Stage stageData) {
-        Area area = stageData.getArea();
-        maze[stageData.getActualPosition().getCordY()][stageData.getActualPosition().getCordX()] = CellType.POSITION;
-
-        maze[stageData.getPreviousPosition().getCordY()][stageData.getPreviousPosition().getCordX()] = CellType.LAST_POSITION;
-
-        // Add walls to area
-        List<Coordinates> walls = stageData.getWalls();
-        for(Coordinates item : walls) {
-            maze[item.getCordY()][item.getCordX()] = CellType.WALL;
+    /**
+     *
+     * @param id
+     * @param height
+     * @param width
+     * @param objectsDetect
+     * @param walls
+     */
+    public void saveGameStatus(String id, int height, int width, List<ObjectDetect> objectsDetect, List<Coordinates> walls) {
+        try {
+            GameStatus gameStatus = new GameStatus();
+            gameStatus.setId(id);
+            gameStatus.setMazeHeight(height);
+            gameStatus.setMazeWidth(width);
+            gameStatus.setLastObjectsFound(mapper.writeValueAsString(objectsDetect));
+            gameStatus.setWallsFound(mapper.writeValueAsString(walls));
+            gameStatusRepository.save(gameStatus);
+        } catch(JsonProcessingException e) {
+            log.error("Error when process object to json", e);
+        } catch(Exception e) {
+            log.error("Unexpected error in method saveGameStatus", e);
         }
-
-        // Add invaders on maze
-        List<Invader> invaders = stageData.getInvaders();
-        for(Invader invader: invaders) {
-            maze[invader.getCordY()][invader.getCordX()] = (invader.isNeutral()) ? CellType.INVADER_NEUTRAL : CellType.INVADER;
-        }
-
-        // Add players on maze
-        List<Coordinates> enemies = stageData.getEnemies();
-        for(Coordinates enemy : enemies) {
-            maze[enemy.getCordY()][enemy.getCordX()] = CellType.ENEMY;
-        }
-
-        // Add area viewed cells to calculation propusal
-        for(int y = area.getCordY1(); y <= area.getCordY2(); y++) {
-            for(int x = area.getCordX1(); x <= area.getCordX2(); x++) {
-                maze[y][x] = (maze[y][x] == null) ? CellType.VIEWED : maze[y][x];
-            }
-        }
-    }
-
-    private void clearMaze() {
-        int rowCount = maze.length;
-        int colCount = maze[0].length;
-
-        for(int y = 0; y < rowCount; y++) {
-            for(int x = 0; x < colCount; x++) {
-                maze[y][x] = (maze[y][x] != null && maze[y][x].equals(CellType.WALL)) ? CellType.WALL : null;
-            }
-        }
-    }
-
-    private List<Map<String, Coordinates>> storeObjectsFromMaze(String[][] maze) {
-        int rowCount = maze.length;
-        int colCount = maze[0].length;
-        List<Map<String, Coordinates>> objects = new ArrayList<>();
-
-        for(int y = 0; y < rowCount; y++) {
-            for(int x = 0; x < colCount; x++) {
-                if(maze[y][x] != null && maze[y][x].equals(CellType.WALL)) {
-                    Map<String, Coordinates> item = new HashMap<>();
-                    item.put(CellType.WALL, new Coordinates(y, x));
-                    objects.add(item);
-                }
-            }
-        }
-
-        return objects;
-    }
-
-    public void saveGame(int height, int width, List<ObjectDetect> objects) {
-        Game actualGame = new Game();
-        actualGame.setMazeHeight(height);
-        actualGame.setMazeWidth(width);
-        String lastObjectsFound = mapper.writeValueAsString(objects);
-
-
-    }
-
-    private void storageGame(String playerId, String[][] maze, List<Coordinates> pathUsed) {
-        Storage storage = games.get(playerId);
-        if(storage == null) {
-            storage = new Storage();
-        }
-
-        /*storage.setHeight(maze.length);
-        storage.setWidth(maze[0].length);
-        storage.setMaze(maze);
-        storage.setPathUsed(pathUsed);*/
-        games.put(playerId, storage);
     }
 }

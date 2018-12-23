@@ -35,12 +35,18 @@
                 },
                 {
                   "column" : {
+                    "name" : "walls_found",
+                    "type" : "TEXT"
+                  }
+                },
+                {
+                  "column" : {
                     "name" : "created",
                     "type" : "date"
                   }
                 }
               ],
-              "tableName" : "game",
+              "tableName" : "game_status",
               "schemaName" : "db"
             }
           }

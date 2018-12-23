@@ -23,7 +23,6 @@ public class Commander {
     private Coordinates lastPosition;
     private boolean fire;
     private List<Coordinates> pathUsed;
-    private int counter;
 
     private List<Coordinates> potentialEnemies;
 
@@ -35,7 +34,6 @@ public class Commander {
         this.fire = fire;
         this.potentialEnemies = new ArrayList<>();
         this.pathUsed = pathUsed;
-        this.counter = new Random().nextInt(8888888);
     }
 
     public String getDecision() {
