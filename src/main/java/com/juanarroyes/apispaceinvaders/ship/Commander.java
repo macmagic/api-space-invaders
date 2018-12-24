@@ -1,13 +1,17 @@
 package com.juanarroyes.apispaceinvaders.ship;
 
 import com.juanarroyes.apispaceinvaders.constants.CellType;
+import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Random;
 
 @Slf4j
 public class Commander {
+
+    public static final String[] MOVES = { Moves.DOWN, Moves.UP, Moves.LEFT, Moves.RIGHT };
 
     private String[][] maze;
     private Area area;
@@ -68,6 +72,10 @@ public class Commander {
 
     public void setInvaders(List<Invader> invaders) {
         this.invaders = invaders;
+    }
+
+    public static String randomMove() {
+        return MOVES[new Random().nextInt(MOVES.length)];
     }
 
     private void setObjectsToMaze() {

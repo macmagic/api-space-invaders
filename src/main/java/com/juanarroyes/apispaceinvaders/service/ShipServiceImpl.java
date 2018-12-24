@@ -28,10 +28,6 @@ public class ShipServiceImpl implements ShipService {
 
     private ObjectMapper mapper;
 
-    //private String[][] maze;
-
-    private Commander shipCommander;
-
     public ShipServiceImpl(GameStatusRepository gameStatusRepository) {
         this.gameStatusRepository = gameStatusRepository;
         this.mapper = new ObjectMapper();
@@ -39,9 +35,10 @@ public class ShipServiceImpl implements ShipService {
 
     @Override
     public String moveShip(Stage stageData) {
+        String move = null;
         try {
-            String id = Utils.getGameStatusId(stageData.getGameId(), stageData.getPlayerId());
-            GameStatus gameStatus = getGameStatusById(id);
+            String gameStatusId = Utils.getGameStatusId(stageData.getGameId(), stageData.getPlayerId());
+            GameStatus gameStatus = getGameStatusById(gameStatusId);
             int height;
             int width;
             List<ObjectDetect> lastObjectsFound = new ArrayList<>();
@@ -57,11 +54,12 @@ public class ShipServiceImpl implements ShipService {
                 width = stageData.getMazeSize().getWidth();
             }
 
-            shipCommander = new Commander(height, width, lastObjectsFound, lastWalls, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition());
+            Commander shipCommander = new Commander(height, width, lastObjectsFound, lastWalls, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition());
             shipCommander.setEnemies(stageData.getEnemies());
             shipCommander.setInvaders(stageData.getInvaders());
             shipCommander.setWalls(stageData.getWalls());
-            String move = shipCommander.getDecision();
+            move = shipCommander.getDecision();
+            saveGameStatus(gameStatusId, height, width, lastObjectsFound, lastWalls);
         } catch (JsonParseException | JsonMappingException e) {
             log.error("Error when read values from json string", e);
         } catch (IOException e) {
@@ -70,7 +68,10 @@ public class ShipServiceImpl implements ShipService {
             log.error("Unexpected error in method moveShip", e);
         }
 
-        return "left";
+        if(move == null) {
+            move = Commander.randomMove();
+        }
+        return move;
     }
 
     /**
