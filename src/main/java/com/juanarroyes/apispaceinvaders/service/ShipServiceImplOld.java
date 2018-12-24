@@ -6,7 +6,7 @@ import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.dto.*;
 import com.juanarroyes.apispaceinvaders.model.GameStatus;
 import com.juanarroyes.apispaceinvaders.repository.GameStatusRepository;
-import com.juanarroyes.apispaceinvaders.ship.Commander;
+import com.juanarroyes.apispaceinvaders.ship.CommanderOld;
 import com.juanarroyes.apispaceinvaders.utils.MazeUtils;
 import com.juanarroyes.apispaceinvaders.utils.Storage;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class ShipServiceImplOld {
 
     private String[][] maze;
 
-    private Commander shipCommander;
+    private CommanderOld shipCommander;
 
     private Map<String, Storage> games = new HashMap<>();
 
@@ -86,7 +86,7 @@ public class ShipServiceImplOld {
             maze = MazeUtils.addLimitWalls(maze, CellType.WALL);
             pathUsed = new ArrayList<>();
         }
-        shipCommander = new Commander(maze, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire(), pathUsed);
+        shipCommander = new CommanderOld(maze, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire(), pathUsed);
     }
 
     private void mazeDiscovery(Stage stageData) {
