@@ -45,6 +45,7 @@ public class ShipServiceImpl implements ShipService {
             List<Coordinates> lastWalls = new ArrayList<>();
 
             if (gameStatus != null) {
+                log.info("Retry game from database");
                 height = gameStatus.getMazeHeight();
                 width = gameStatus.getMazeWidth();
                 lastObjectsFound = mapper.readValue(gameStatus.getLastObjectsFound(), mapper.getTypeFactory().constructCollectionType(List.class, ObjectDetect.class));
@@ -54,7 +55,7 @@ public class ShipServiceImpl implements ShipService {
                 width = stageData.getMazeSize().getWidth();
             }
 
-            Commander shipCommander = new Commander(height, width, lastObjectsFound, lastWalls, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition());
+            Commander shipCommander = new Commander(height, width, lastObjectsFound, lastWalls, stageData.getArea(), stageData.getActualPosition(), stageData.getPreviousPosition(), stageData.isFire());
             shipCommander.setEnemies(stageData.getEnemies());
             shipCommander.setInvaders(stageData.getInvaders());
             shipCommander.setWalls(stageData.getWalls());
@@ -101,6 +102,7 @@ public class ShipServiceImpl implements ShipService {
             gameStatus.setLastObjectsFound(mapper.writeValueAsString(objectsDetect));
             gameStatus.setWallsFound(mapper.writeValueAsString(walls));
             gameStatusRepository.save(gameStatus);
+            log.info("Save game with id [" + id + "] ok");
         } catch(JsonProcessingException e) {
             log.error("Error when process object to json", e);
         } catch(Exception e) {

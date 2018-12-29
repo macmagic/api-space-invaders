@@ -4,6 +4,7 @@ import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.Area;
 import com.juanarroyes.apispaceinvaders.dto.Coordinates;
+import javafx.scene.control.Cell;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -381,6 +382,31 @@ public class Detector {
         }
         return points;
     }
+
+    public static boolean isNextMovementCorrect(String[][] maze, Coordinates actualPosition, String move) {
+        List<String> obstacles = Arrays.asList(CellType.ENEMY, CellType.INVADER, CellType.WALL);
+        Coordinates nextPosition = new Coordinates();
+        switch(move) {
+            case Moves.UP:
+                nextPosition.setCordX(actualPosition.getCordX());
+                nextPosition.setCordY(actualPosition.getCordY()-1);
+                break;
+            case Moves.DOWN:
+                nextPosition.setCordX(actualPosition.getCordX());
+                nextPosition.setCordY(actualPosition.getCordY()+1);
+                break;
+            case Moves.LEFT:
+                nextPosition.setCordX(actualPosition.getCordX()-1);
+                nextPosition.setCordY(actualPosition.getCordY());
+                break;
+            case Moves.RIGHT:
+                nextPosition.setCordX(actualPosition.getCordX()+1);
+                nextPosition.setCordY(actualPosition.getCordY());
+                break;
+        }
+        return maze[nextPosition.getCordY()][nextPosition.getCordX()] == null || !obstacles.contains(maze[nextPosition.getCordY()][nextPosition.getCordX()]);
+    }
+
 
     /**
      *
