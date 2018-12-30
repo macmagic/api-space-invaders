@@ -226,10 +226,56 @@ public class Detector {
         }
     }
 
+    public static List<String> getRecommendedMovesOrdered(String[][] maze, Area area, Coordinates actualPosition, List<String> availableMoves) {
+        List<String> moves = new ArrayList<>();
+        int idx1;
+        int idx2;
+        Integer lastPoints = null;
+        Integer points = null;
+
+        for(String move : availableMoves) {
+            switch(move) {
+                case Moves.UP:
+                    idx1 = area.getCordY1();
+                    idx2 = actualPosition.getCordY()-1;
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, true);
+                    break;
+                case Moves.DOWN:
+                    idx1 = actualPosition.getCordY()+1;
+                    idx2 = area.getCordY2();
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, false);
+                    break;
+                case Moves.LEFT:
+                    idx1 = area.getCordX1();
+                    idx2 = actualPosition.getCordX() -1;
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, true);
+                    break;
+                case Moves.RIGHT:
+                    idx1 = actualPosition.getCordX() + 1;
+                    idx2 = area.getCordX2();
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, false);
+                    break;
+                default:
+                    continue;
+            }
+
+            if(lastPoints == null) {
+                lastPoints = points;
+                moves.add(move);
+            } else if(lastPoints < points) {
+                lastPoints = points;
+                moves.add(0, move);
+            } else {
+                moves.add(move);
+            }
+        }
+        return moves;
+    }
+
     public static List<String> getRecommendedDirection(String[][] maze, Area area, Coordinates actualPosition, List<String> availableMoves) {
         int lastPoints = 0;
-        String moveSelected = null;
         int topPoints = 0;
+        String moveSelected;
         int idx1;
         int idx2;
         int points;

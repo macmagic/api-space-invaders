@@ -47,16 +47,40 @@ public class Commander {
 
     public String getDecision() {
         setObjectsToMaze();
+        log.info("Actual maze is:\n");
+        log.info("\n" + drawMaze()+"\n");
         String move = null;
+        Coordinates targetFire = null;
+
+        List<Coordinates> potentialEnemies = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
+        List<Coordinates> neutralInvaders = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
+        String lastDirection = Detector.directionOfTarget(lastPosition, actualPosition);
+        List<String> availableMoves = Detector.getAvailableMovesByObject(maze, actualPosition, MOVES);
+        List<String> movesRecommended = Detector.getRecommendedMovesOrdered(maze, area, actualPosition, availableMoves);
 
         if(canFire) {
-            move = attackStrategy();
-        } else {
-            List<Coordinates> neutralInvaders = Detector.getNeutralInvaders(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
-
+            targetFire = getTargetDirectShot(CellType.ENEMY);
+            targetFire = (targetFire == null) ? getTargetDirectShot(CellType.INVADER) : targetFire;
         }
 
-
+        if(targetFire != null) {
+            String direction = Detector.directionOfTarget(actualPosition, targetFire);
+            move = getMovement(direction, canFire);
+        } else if(canFire && !potentialEnemies.isEmpty()) {
+            Coordinates enemy = Detector.followBestEnemy(maze, actualPosition, potentialEnemies);
+            move = Detector.directionOfTarget(actualPosition, enemy);
+        } else if(!neutralInvaders.isEmpty()) {
+            Coordinates bestNeutralInvader = Detector.followBestEnemy(maze, actualPosition, neutralInvaders);
+            move = Detector.directionOfTarget(actualPosition, bestNeutralInvader);
+        } else if(lastDirection != null && availableMoves.contains(lastDirection) && Detector.isNextMovementCorrect(maze, actualPosition, lastDirection)) {
+            move = lastDirection;
+        } else if (!movesRecommended.isEmpty()) {
+            move = movesRecommended.get(0);
+        } else if(!availableMoves.isEmpty()) {
+            move = availableMoves.get(new Random().nextInt(availableMoves.size()));
+        } else {
+            move = randomMove();
+        }
         return move;
     }
 
@@ -92,7 +116,7 @@ public class Commander {
         this.invaders = invaders;
     }
 
-    private String attackStrategy() {
+    /*private String attackStrategy() {
         String move = null;
         List<Coordinates> potentialEnemies = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
 
@@ -107,45 +131,30 @@ public class Commander {
             move = Detector.directionOfTarget(actualPosition, enemy);
         }
         return move;
-    }
+    }*/
 
-    private String defenseStrategy() {
-        String move = null;
+    /*private String defenseStrategy() {
+        String move;
 
         List<Coordinates> neutralInvaders = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
         String lastDirection = Detector.directionOfTarget(lastPosition, actualPosition);
         List<String> availableMoves = Detector.getAvailableMovesByObject(maze, actualPosition, MOVES);
-        List<String> moves = Detector.getRecommendedDirection(maze, area, actualPosition, availableMoves);
-        int pointsLastDirection = Detector.checkDirectionRank(maze, area, actualPosition, lastDirection);
+        List<String> movesRecommended = Detector.getRecommendedMovesOrdered(maze, area, actualPosition, availableMoves);
 
         if(!neutralInvaders.isEmpty()) {
             Coordinates bestNeutralInvader = Detector.followBestEnemy(maze, actualPosition, neutralInvaders);
             move = Detector.directionOfTarget(actualPosition, bestNeutralInvader);
-        } else if(lastDirection != null && availableMoves.contains(lastDirection)) {
-
-        }
-
-        /*int pointsMoveRecommended = Detector.checkDirectionRank(maze, area, actualPosition, moveRecommended);
-        boolean isNextCoordsInPath = (lastDirection != null) ? isNextCoordsInPathUsed(getNextCoordsByMove(lastDirection,actualPosition)) : false;
-
-        if(lastDirection != null && availableMoves.contains(lastDirection) &&
-                (!isNextCoordsInPath || (isNextCoordsInPath && pointsLastDirection >= pointsMoveRecommended))) {
-            log.info("I have use the LAST DIRECTION");
-            return lastDirection;
-        } else if (moveRecommended != null && pointsMoveRecommended > pointsLastDirection) {
-            log.info("I have use the RECOMMENDED DIRECTION");
-            return moveRecommended;
-        } else if(!availableMoves.isEmpty()){
-            log.info("I have use the random available moves");
-            return availableMoves.get(new Random().nextInt(availableMoves.size()));
+        } else if(lastDirection != null && availableMoves.contains(lastDirection) && Detector.isNextMovementCorrect(maze, actualPosition, lastDirection)) {
+            move = lastDirection;
+        } else if (!movesRecommended.isEmpty()) {
+            move = movesRecommended.get(0);
+        } else if(!availableMoves.isEmpty()) {
+            move = availableMoves.get(new Random().nextInt(availableMoves.size()));
         } else {
-            log.info("I have use the random moves");
-            return MOVES[new Random().nextInt(MOVES.length)];
-        }*/
-
-
+            move = randomMove();
+        }
         return move;
-    }
+    }*/
 
     /**
      *
@@ -155,9 +164,17 @@ public class Commander {
         return MOVES[new Random().nextInt(MOVES.length)];
     }
 
+    /**
+     * Set the objects detected to maze.
+     */
     private void setObjectsToMaze() {
-
         log.info("Put objects detected to maze");
+
+        log.info("Put player positions");
+        maze[actualPosition.getCordY()][actualPosition.getCordX()] = CellType.POSITION;
+
+        maze[lastPosition.getCordY()][lastPosition.getCordX()] = CellType.LAST_POSITION;
+
         log.info("Put invaders (neutral and enemy)");
         for(Invader invader :  invaders) {
             maze[invader.getCordY()][invader.getCordX()] = (invader.isNeutral() ? CellType.INVADER_NEUTRAL : CellType.INVADER);
@@ -168,10 +185,75 @@ public class Commander {
             maze[enemy.getCordY()][enemy.getCordX()] = CellType.ENEMY;
         }
 
-        log.info("Put walls");
+        log.info("Put new walls");
         for(Coordinates wall :  walls) {
             maze[wall.getCordY()][wall.getCordX()] = CellType.WALL;
         }
+
+        if(lastWalls.isEmpty()) {
+            lastWalls = getLimitWalls();
+        }
+
+        log.info("Put last walls");
+        for(Coordinates wall :  lastWalls) {
+            maze[wall.getCordY()][wall.getCordX()] = CellType.WALL;
+        }
+
+        log.info("Add visible area cells");
+        for(int y = area.getCordY1(); y<=area.getCordY2(); y++) {
+            for(int x = area.getCordX1(); x<=area.getCordX2(); x++) {
+                maze[y][x] = (maze[y][x] !=null) ? maze[y][x] : CellType.VIEWED;
+            }
+        }
+
+        addNewDiscoveredWalls();
+    }
+
+    private void addNewDiscoveredWalls() {
+        for (Coordinates wall : walls) {
+            if(!lastWalls.contains(wall)) {
+                lastWalls.add(wall);
+            }
+        }
+    }
+
+    private List<Coordinates> getLimitWalls() {
+        List<Coordinates> limitWalls = new ArrayList<>();
+        Coordinates position;
+        int rowCount = maze.length;
+        int colCount = maze[0].length;
+
+        for(int y = 0; y < rowCount; y++) {
+            if(y == 0 || y == rowCount-1) {
+                for(int x = 0; x < colCount; x++) {
+                    position = new Coordinates(y,x);
+                    limitWalls.add(position);
+                }
+            } else {
+                position = new Coordinates(y, 0);
+                limitWalls.add(position);
+                position = new Coordinates(y, colCount-1);
+                limitWalls.add(position);
+            }
+        }
+        return limitWalls;
+    }
+
+    private String drawMaze() {
+        StringBuilder sb = new StringBuilder();
+        int rowCount = maze.length;
+        int colCount = maze[0].length;
+        String cell;
+
+        for(int y = 0; y < rowCount; y++) {
+            sb.append("| ");
+            for(int x = 0; x < colCount; x++) {
+                cell = (maze[y][x] == null) ? "-" : maze[y][x];
+                sb.append(cell).append(" | ");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 
     private String getMovement(String direction, boolean fire) {
