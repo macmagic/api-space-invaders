@@ -185,19 +185,22 @@ public class Commander {
             maze[enemy.getCordY()][enemy.getCordX()] = CellType.ENEMY;
         }
 
+        if(!lastWalls.isEmpty()) {
+            addNewDiscoveredWalls();
+        } else {
+            log.info("Put maze limits");
+            walls.addAll(getLimitWalls());
+        }
+
         log.info("Put new walls");
         for(Coordinates wall :  walls) {
             maze[wall.getCordY()][wall.getCordX()] = CellType.WALL;
         }
 
-        if(lastWalls.isEmpty()) {
-            lastWalls = getLimitWalls();
-        }
-
-        log.info("Put last walls");
+        /*log.info("Put last walls");
         for(Coordinates wall :  lastWalls) {
             maze[wall.getCordY()][wall.getCordX()] = CellType.WALL;
-        }
+        }*/
 
         log.info("Add visible area cells");
         for(int y = area.getCordY1(); y<=area.getCordY2(); y++) {
@@ -210,9 +213,9 @@ public class Commander {
     }
 
     private void addNewDiscoveredWalls() {
-        for (Coordinates wall : walls) {
-            if(!lastWalls.contains(wall)) {
-                lastWalls.add(wall);
+        for (Coordinates wall : lastWalls) {
+            if(!walls.contains(wall)) {
+                walls.add(wall);
             }
         }
     }

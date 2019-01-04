@@ -21,10 +21,10 @@ public class GameStatus implements Serializable {
     @Column(name = "maze_width")
     private int mazeWidth;
 
-    @Column(name = "last_objects_found")
+    @Column(name = "last_objects_found", length = 4000)
     private String lastObjectsFound;
 
-    @Column(name = "walls_found")
+    @Column(name = "walls_found", length = 4000)
     private String wallsFound;
 
     @CreationTimestamp

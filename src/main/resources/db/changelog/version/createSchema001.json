@@ -30,13 +30,13 @@
                 {
                   "column" : {
                     "name" : "last_objects_found",
-                    "type" : "TEXT"
+                    "type" : "clob"
                   }
                 },
                 {
                   "column" : {
                     "name" : "walls_found",
-                    "type" : "TEXT"
+                    "type" : "clob"
                   }
                 },
                 {

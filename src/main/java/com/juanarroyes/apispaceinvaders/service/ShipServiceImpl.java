@@ -60,7 +60,7 @@ public class ShipServiceImpl implements ShipService {
             shipCommander.setInvaders(stageData.getInvaders());
             shipCommander.setWalls(stageData.getWalls());
             move = shipCommander.getDecision();
-            saveGameStatus(gameStatusId, height, width, lastObjectsFound, lastWalls);
+            saveGameStatus(gameStatusId, height, width, lastObjectsFound, shipCommander.getWalls());
         } catch (JsonParseException | JsonMappingException e) {
             log.error("Error when read values from json string", e);
         } catch (IOException e) {
