@@ -3,6 +3,7 @@ package com.juanarroyes.apispaceinvaders.ship;
 import com.juanarroyes.apispaceinvaders.constants.CellType;
 import com.juanarroyes.apispaceinvaders.constants.Moves;
 import com.juanarroyes.apispaceinvaders.dto.*;
+import javafx.scene.control.Cell;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -47,8 +48,7 @@ public class Commander {
 
     public String getDecision() {
         setObjectsToMaze();
-        log.info("Actual maze is:\n");
-        log.info("\n" + drawMaze()+"\n");
+        log.info(drawMaze());
         String move = null;
         Coordinates targetFire = null;
 
@@ -116,52 +116,40 @@ public class Commander {
         this.invaders = invaders;
     }
 
-    /*private String attackStrategy() {
-        String move = null;
-        List<Coordinates> potentialEnemies = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
-
-        Coordinates targetFire = getTargetDirectShot(CellType.ENEMY);
-        targetFire = (targetFire == null) ? getTargetDirectShot(CellType.INVADER) : targetFire;
-
-        if(targetFire != null) {
-            String direction = Detector.directionOfTarget(actualPosition, targetFire);
-            move = getMovement(direction, canFire);
-        } else if(!potentialEnemies.isEmpty()) {
-            Coordinates enemy = Detector.followBestEnemy(maze, actualPosition, potentialEnemies);
-            move = Detector.directionOfTarget(actualPosition, enemy);
-        }
-        return move;
-    }*/
-
-    /*private String defenseStrategy() {
-        String move;
-
-        List<Coordinates> neutralInvaders = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
-        String lastDirection = Detector.directionOfTarget(lastPosition, actualPosition);
-        List<String> availableMoves = Detector.getAvailableMovesByObject(maze, actualPosition, MOVES);
-        List<String> movesRecommended = Detector.getRecommendedMovesOrdered(maze, area, actualPosition, availableMoves);
-
-        if(!neutralInvaders.isEmpty()) {
-            Coordinates bestNeutralInvader = Detector.followBestEnemy(maze, actualPosition, neutralInvaders);
-            move = Detector.directionOfTarget(actualPosition, bestNeutralInvader);
-        } else if(lastDirection != null && availableMoves.contains(lastDirection) && Detector.isNextMovementCorrect(maze, actualPosition, lastDirection)) {
-            move = lastDirection;
-        } else if (!movesRecommended.isEmpty()) {
-            move = movesRecommended.get(0);
-        } else if(!availableMoves.isEmpty()) {
-            move = availableMoves.get(new Random().nextInt(availableMoves.size()));
-        } else {
-            move = randomMove();
-        }
-        return move;
-    }*/
-
     /**
      *
      * @return
      */
     public static String randomMove() {
         return MOVES[new Random().nextInt(MOVES.length)];
+    }
+
+    public List<ObjectDetect> getObjectsDetected() {
+        List<ObjectDetect> objectsDetected = new ArrayList<>();
+        ObjectDetect objectDetect = null;
+
+        if(!enemies.isEmpty()) {
+            for(Coordinates enemy : enemies) {
+                objectDetect = new ObjectDetect();
+                objectDetect.setPosition(enemy);
+                objectDetect.setObjectType(CellType.ENEMY);
+                objectDetect.setDistance(Detector.distanceOfTwoObjects(actualPosition, enemy));
+                objectsDetected.add(objectDetect);
+            }
+        }
+
+        if(!invaders.isEmpty()) {
+            for(Invader invader : invaders) {
+                objectDetect = new ObjectDetect();
+                objectDetect.setPosition(new Coordinates(invader.getCordY(), invader.getCordX()));
+                String type = (invader.isNeutral()) ? CellType.INVADER_NEUTRAL : CellType.INVADER;
+                objectDetect.setObjectType(type);
+                objectDetect.setDistance(Detector.distanceOfTwoObjects(actualPosition, invader));
+                objectsDetected.add(objectDetect);
+            }
+        }
+
+        return objectsDetected;
     }
 
     /**
@@ -186,21 +174,16 @@ public class Commander {
         }
 
         if(!lastWalls.isEmpty()) {
-            addNewDiscoveredWalls();
+            addLastWallsFoundedToActualWalls();
         } else {
             log.info("Put maze limits");
             walls.addAll(getLimitWalls());
         }
 
-        log.info("Put new walls");
+        log.info("Put walls on maze");
         for(Coordinates wall :  walls) {
             maze[wall.getCordY()][wall.getCordX()] = CellType.WALL;
         }
-
-        /*log.info("Put last walls");
-        for(Coordinates wall :  lastWalls) {
-            maze[wall.getCordY()][wall.getCordX()] = CellType.WALL;
-        }*/
 
         log.info("Add visible area cells");
         for(int y = area.getCordY1(); y<=area.getCordY2(); y++) {
@@ -208,11 +191,9 @@ public class Commander {
                 maze[y][x] = (maze[y][x] !=null) ? maze[y][x] : CellType.VIEWED;
             }
         }
-
-        addNewDiscoveredWalls();
     }
 
-    private void addNewDiscoveredWalls() {
+    private void addLastWallsFoundedToActualWalls() {
         for (Coordinates wall : lastWalls) {
             if(!walls.contains(wall)) {
                 walls.add(wall);
@@ -242,10 +223,16 @@ public class Commander {
         return limitWalls;
     }
 
+    /**
+     * Draw on log the actual maze and the player view.
+     * @return String with maze writed and objects, player, area viewed and walls.
+     */
     private String drawMaze() {
         StringBuilder sb = new StringBuilder();
         int rowCount = maze.length;
         int colCount = maze[0].length;
+
+        sb.append("Actual maze is:\n");
         String cell;
 
         for(int y = 0; y < rowCount; y++) {
@@ -256,9 +243,19 @@ public class Commander {
             }
             sb.append("\n");
         }
+
+        sb.append(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
+        sb.append("\n");
         return sb.toString();
     }
 
+    /**
+     * Make movement correct if need fire or not.
+     *
+     * @param direction
+     * @param fire
+     * @return
+     */
     private String getMovement(String direction, boolean fire) {
         String movement = "";
         if(fire) {

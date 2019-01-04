@@ -4,6 +4,8 @@ public class ObjectDetect {
 
     private Coordinates position;
 
+    private String objectType;
+
     private String lastMove;
 
     private int distance;
@@ -24,6 +26,14 @@ public class ObjectDetect {
 
     public void setPosition(Coordinates position) {
         this.position = position;
+    }
+
+    public String getObjectType() {
+        return objectType;
+    }
+
+    public void setObjectType(String objectType) {
+        this.objectType = objectType;
     }
 
     public String getLastMove() {

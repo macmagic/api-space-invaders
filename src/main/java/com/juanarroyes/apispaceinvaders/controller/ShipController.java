@@ -6,6 +6,7 @@ import com.juanarroyes.apispaceinvaders.response.MoveResponse;
 import com.juanarroyes.apispaceinvaders.response.NameResponse;
 import com.juanarroyes.apispaceinvaders.service.ShipService;
 import com.juanarroyes.apispaceinvaders.utils.Storage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/")
+@Slf4j
 public class ShipController {
 
     @Value("${app.name}")
@@ -34,6 +36,7 @@ public class ShipController {
 
     @PostMapping("/name")
     public ResponseEntity<NameResponse> getWhoAmI() {
+        log.info("Return API participant info");
         NameResponse response = new NameResponse(name, email);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
