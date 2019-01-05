@@ -1,0 +1,57 @@
+{
+  "databaseChangeLog" : [
+    {
+      "changeSet" : {
+        "id" : "schema-creation-001",
+        "author" : "jarroyes",
+        "changes" : [
+          {
+            "createTable" : {
+              "catalogName" : "db",
+              "columns" : [
+                {
+                  "column" : {
+                    "name" : "id",
+                    "type" : "varchar(200)"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "maze_height",
+                    "type" : "int"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "maze_width",
+                    "type" : "varchar(200)"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "last_objects_found",
+                    "type" : "clob"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "walls_found",
+                    "type" : "clob"
+                  }
+                },
+                {
+                  "column" : {
+                    "name" : "created",
+                    "type" : "date"
+                  }
+                }
+              ],
+              "tableName" : "game_status",
+              "schemaName" : "db"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

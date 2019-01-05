@@ -1,20 +1,20 @@
 package com.juanarroyes.apispaceinvaders.exception;
 
-public class AppException extends Exception {
+class AppException extends Exception {
 
-    public AppException () {
+    AppException () {
         super();
     }
 
-    public AppException (String message) {
+    AppException (String message) {
         super(message);
     }
 
-    public AppException (String message, Throwable cause) {
+    AppException (String message, Throwable cause) {
         super(message, cause);
     }
 
-    public AppException (Throwable cause) {
+    AppException (Throwable cause) {
         super(cause);
     }
 

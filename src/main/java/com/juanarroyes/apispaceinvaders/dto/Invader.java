@@ -1,41 +1,15 @@
 package com.juanarroyes.apispaceinvaders.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-
-public class Invader {
-
-    @JsonAlias(value = "x")
-    private int cordX;
-
-    @JsonAlias(value = "y")
-    private int cordY;
+public class Invader extends Coordinates {
 
     private boolean neutral;
 
     public Invader() {
-
     }
 
     public Invader(int cordY, int cordX, boolean neutral) {
-        this.cordX = cordX;
-        this.cordY = cordY;
+        super(cordY, cordX);
         this.neutral = neutral;
-    }
-
-    public int getCordX() {
-        return cordX;
-    }
-
-    public void setCordX(int cordX) {
-        this.cordX = cordX;
-    }
-
-    public int getCordY() {
-        return cordY;
-    }
-
-    public void setCordY(int cordY) {
-        this.cordY = cordY;
     }
 
     public boolean isNeutral() {

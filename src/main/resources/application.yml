@@ -2,8 +2,17 @@ app:
   name: "Juan Antonio Arroyes"
   email: "arroyes89@gmail.com"
   logpath: ./data
+  savegamepath: ./data/savegames
 
 spring:
+  datasource:
+      driver-class-name: org.hsqldb.jdbc.JDBCDriver
+      url: jdbc:hsqldb:mem:db
+      username: sa
+      password: sa
+  h2:
+    console:
+      enabled: true
   application:
     name: apispaceinvaders
 
@@ -25,3 +34,14 @@ management:
 
 ---
 spring.profiles: dev
+
+logging:
+  level:
+    root: INFO
+
+
+---
+spring.profiles: pro
+logging:
+  level:
+    root: WARN

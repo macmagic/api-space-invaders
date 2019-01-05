@@ -4,7 +4,8 @@ import com.juanarroyes.apispaceinvaders.dto.Stage;
 import com.juanarroyes.apispaceinvaders.request.MoveRequest;
 import com.juanarroyes.apispaceinvaders.response.MoveResponse;
 import com.juanarroyes.apispaceinvaders.response.NameResponse;
-import com.juanarroyes.apispaceinvaders.service.ShipServiceImpl;
+import com.juanarroyes.apispaceinvaders.service.ShipService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,10 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Random;
-
 @RestController
 @RequestMapping("/")
+@Slf4j
 public class ShipController {
 
     @Value("${app.name}")
@@ -26,15 +26,16 @@ public class ShipController {
     @Value("${app.email}")
     private String email;
 
-    private ShipServiceImpl shipService;
+    private ShipService shipService;
 
     @Autowired
-    public ShipController(ShipServiceImpl shipService) {
+    public ShipController(ShipService shipService) {
         this.shipService = shipService;
     }
 
     @PostMapping("/name")
     public ResponseEntity<NameResponse> getWhoAmI() {
+        log.info("Return API participant info");
         NameResponse response = new NameResponse(name, email);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -52,7 +53,6 @@ public class ShipController {
         stage.setEnemies(request.getEnemies());
         stage.setInvaders(request.getInvaders());
         stage.setWalls(request.getBoard().getWalls());
-
         String move = shipService.moveShip(stage);
         MoveResponse response = new MoveResponse(move);
         return new ResponseEntity<>(response, HttpStatus.OK);

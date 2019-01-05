@@ -43,7 +43,7 @@ public class Detector {
         return (distance < 0) ? distance * -1 : distance;
     }
 
-    public static boolean isObstacleBetweenTwoObjects(String[][] maze, Coordinates source, Coordinates target) {
+    private static boolean isObstacleBetweenTwoObjects(String[][] maze, Coordinates source, Coordinates target) {
         int y1;
         int y2;
         int x1;
@@ -150,15 +150,19 @@ public class Detector {
     private static List<Coordinates> detectObjectsByType(String[][] maze, Coordinates position, String type, int distance) {
         Set<String> targets = new HashSet<>();
 
-        if(type.equals(DETECTION_ENEMIES)) {
-            targets.add(CellType.ENEMY);
-            targets.add(CellType.INVADER);
-        } else if(type.equals(DETECTION_NEUTRAL_INVADERS)) {
-            targets.add(CellType.INVADER_NEUTRAL);
-        } else {
-            targets.add(CellType.ENEMY);
-            targets.add(CellType.INVADER);
-            targets.add(CellType.INVADER_NEUTRAL);
+        switch(type) {
+            case DETECTION_ENEMIES:
+                targets.add(CellType.ENEMY);
+                targets.add(CellType.INVADER);
+                break;
+            case DETECTION_NEUTRAL_INVADERS:
+                targets.add(CellType.INVADER_NEUTRAL);
+                break;
+            default:
+                targets.add(CellType.ENEMY);
+                targets.add(CellType.INVADER);
+                targets.add(CellType.INVADER_NEUTRAL);
+                break;
         }
 
         int cordY1 = ((position.getCordY() - distance) < 0) ? 0 : position.getCordY() - distance;
@@ -179,25 +183,6 @@ public class Detector {
         return objects;
     }
 
-    /*public static List<Coordinates> getPotentialThreats(String[][] maze, Coordinates position, int distance) {
-        int cordY1 = ((position.getCordY() - distance) < 0) ? 0 : position.getCordY() - distance;
-        int cordX1 = ((position.getCordX() - distance) < 0) ? 0 : position.getCordX() - distance;
-        int cordY2 = ((position.getCordY() + distance) >= maze.length) ? maze.length -1 : position.getCordY() + distance;
-        int cordX2 = ((position.getCordX() + distance) >= maze[0].length) ? maze.length - 1 : position.getCordX() + distance;
-        List<Coordinates> threats = new ArrayList<>();
-
-        for(int y = cordY1; y <= cordY2; y++) {
-            for(int x = cordX1; x <= cordX2; x++) {
-                String cellValue = maze[y][x];
-                if(cellValue == null) {
-                    continue;
-                } else if((cellValue.equals(CellType.ENEMY) || cellValue.equals(CellType.INVADER)) && !isObstacleBetweenTwoObjects(maze, position, new Coordinates(y, x))) {
-                    threats.add(new Coordinates(y, x));
-                }
-            }
-        }
-        return threats;
-    }*/
 
     public static Coordinates followBestEnemy(String[][] maze, Coordinates actualPosition, List<Coordinates> threats) {
 
@@ -214,18 +199,15 @@ public class Detector {
         return bestEnemyFollow;
     }
 
-    public static String[] getAvailableMoves(String[][] maze, Coordinates actualPosition, String[] moves, String enemyDirection) {
-        List<String> availiableMovesList = new ArrayList<>();
+    public static List<String> getAvailableMovesByObject(String[][] maze, Coordinates objectPosition, String[] moves) {
+        List<String> availableMoves = new ArrayList<>();
 
-        for(String move :  moves) {
-            if(!move.equals(enemyDirection) && checkMoveIsAvailable(maze, actualPosition, move)) {
-                availiableMovesList.add(move);
+        for(String move : moves) {
+            if(checkMoveIsAvailable(maze, objectPosition, move)) {
+                availableMoves.add(move);
             }
         }
-
-        String[] availableMovesArr = new String[availiableMovesList.size()];
-        availiableMovesList.toArray(availableMovesArr);
-        return availableMovesArr;
+        return availableMoves;
     }
 
     private static boolean checkMoveIsAvailable(String[][] maze, Coordinates actualPosition, String move) {
@@ -243,10 +225,56 @@ public class Detector {
         }
     }
 
-    public static List<String> getRecommendedDirection(String[][] maze, Area area, Coordinates actualPosition, String[] availableMoves) {
+    public static List<String> getRecommendedMovesOrdered(String[][] maze, Area area, Coordinates actualPosition, List<String> availableMoves) {
+        List<String> moves = new ArrayList<>();
+        int idx1;
+        int idx2;
+        Integer lastPoints = null;
+        Integer points = null;
+
+        for(String move : availableMoves) {
+            switch(move) {
+                case Moves.UP:
+                    idx1 = area.getCordY1();
+                    idx2 = actualPosition.getCordY()-1;
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, true);
+                    break;
+                case Moves.DOWN:
+                    idx1 = actualPosition.getCordY()+1;
+                    idx2 = area.getCordY2();
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, false);
+                    break;
+                case Moves.LEFT:
+                    idx1 = area.getCordX1();
+                    idx2 = actualPosition.getCordX() -1;
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, true);
+                    break;
+                case Moves.RIGHT:
+                    idx1 = actualPosition.getCordX() + 1;
+                    idx2 = area.getCordX2();
+                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, false);
+                    break;
+                default:
+                    continue;
+            }
+
+            if(lastPoints == null) {
+                lastPoints = points;
+                moves.add(move);
+            } else if(lastPoints < points) {
+                lastPoints = points;
+                moves.add(0, move);
+            } else {
+                moves.add(move);
+            }
+        }
+        return moves;
+    }
+
+    public static List<String> getRecommendedDirection(String[][] maze, Area area, Coordinates actualPosition, List<String> availableMoves) {
         int lastPoints = 0;
-        String moveSelected = null;
         int topPoints = 0;
+        String moveSelected;
         int idx1;
         int idx2;
         int points;
@@ -281,9 +309,6 @@ public class Detector {
 
             if(topPoints <= points) {
                 movesOrdered.add(0, move);
-
-                /*movesOrdered = Arrays.copyOf(movesOrdered, movesOrdered.length+1);
-                movesOrdered[0]*/
                 moveSelected = move;
                 topPoints = points;
                 lastPoints = points;
@@ -340,6 +365,16 @@ public class Detector {
         return points;
     }
 
+    /**
+     *
+     * @param maze The actual maze
+     * @param idxStart The start index foreach
+     * @param idxFinal The final index foreach
+     * @param idxStatic The static index
+     * @param axisType The type of axis analyzed, X or Y.
+     * @param reverse Indicate the loop is 1,2,3 or 3,2,1
+     * @return
+     */
     private static int checkDirection(String[][] maze, int idxStart, int idxFinal, int idxStatic, int axisType, boolean reverse) {
         int points = 0;
         int idx;
@@ -367,6 +402,14 @@ public class Detector {
         return points;
     }
 
+    /**
+     *
+     * @param maze The actual maze to analyze
+     * @param axisType The axis checking, Y or X
+     * @param idx The actual index on maze.
+     * @param idxStatic The static index on maze
+     * @return Return 1 point if cell is VIEWED or LAST_POSITION, return -1 if not.
+     */
     private static int getPointsByConditions(String[][] maze, int axisType, int idx, int idxStatic) {
         int points = 0;
         if(axisType == AXIS_X &&
@@ -385,8 +428,40 @@ public class Detector {
         return points;
     }
 
+    public static boolean isNextMovementCorrect(String[][] maze, Coordinates actualPosition, String move) {
+        List<String> obstacles = Arrays.asList(CellType.ENEMY, CellType.INVADER, CellType.WALL);
+        Coordinates nextPosition = new Coordinates();
+        switch(move) {
+            case Moves.UP:
+                nextPosition.setCordX(actualPosition.getCordX());
+                nextPosition.setCordY(actualPosition.getCordY()-1);
+                break;
+            case Moves.DOWN:
+                nextPosition.setCordX(actualPosition.getCordX());
+                nextPosition.setCordY(actualPosition.getCordY()+1);
+                break;
+            case Moves.LEFT:
+                nextPosition.setCordX(actualPosition.getCordX()-1);
+                nextPosition.setCordY(actualPosition.getCordY());
+                break;
+            case Moves.RIGHT:
+                nextPosition.setCordX(actualPosition.getCordX()+1);
+                nextPosition.setCordY(actualPosition.getCordY());
+                break;
+        }
+        return maze[nextPosition.getCordY()][nextPosition.getCordX()] == null || !obstacles.contains(maze[nextPosition.getCordY()][nextPosition.getCordX()]);
+    }
+
+
+    /**
+     *
+     * @param maze
+     * @param area
+     * @param actualPosition
+     * @param lastMove
+     * @return
+     */
     public static boolean isLastMovementCorrect(String[][] maze, Area area, Coordinates actualPosition, String lastMove) {
-        int distance = 4;
         if(lastMove.equals(Moves.RIGHT)) {
             for(int x = actualPosition.getCordX(); x <= area.getCordX2(); x++) {
                 if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
