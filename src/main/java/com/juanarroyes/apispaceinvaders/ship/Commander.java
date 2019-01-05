@@ -49,7 +49,7 @@ public class Commander {
     public String getDecision() {
         setObjectsToMaze();
         log.info(drawMaze());
-        String move = null;
+        String move;
         Coordinates targetFire = null;
 
         List<Coordinates> potentialEnemies = Detector.getPotentialThreats(maze, actualPosition, DEFAULT_DISTANCE_OF_DETECTION);
@@ -259,7 +259,7 @@ public class Commander {
     private String getMovement(String direction, boolean fire) {
         String movement = "";
         if(fire) {
-            movement = "fire-";
+            movement = Moves.FIRE + "-";
         }
         return movement + direction;
     }

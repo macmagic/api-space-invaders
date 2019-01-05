@@ -10,8 +10,6 @@ import com.juanarroyes.apispaceinvaders.dto.Stage;
 import com.juanarroyes.apispaceinvaders.model.GameStatus;
 import com.juanarroyes.apispaceinvaders.repository.GameStatusRepository;
 import com.juanarroyes.apispaceinvaders.ship.Commander;
-import com.juanarroyes.apispaceinvaders.ship.CommanderOld;
-import com.juanarroyes.apispaceinvaders.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +35,7 @@ public class ShipServiceImpl implements ShipService {
     public String moveShip(Stage stageData) {
         String move = null;
         try {
-            String gameStatusId = Utils.getGameStatusId(stageData.getGameId(), stageData.getPlayerId());
+            String gameStatusId = getGameStatusId(stageData.getGameId(), stageData.getPlayerId());
             GameStatus gameStatus = getGameStatusById(gameStatusId);
             int height;
             int width;
@@ -68,21 +66,20 @@ public class ShipServiceImpl implements ShipService {
         } catch (Exception e) {
             log.error("Unexpected error in method moveShip", e);
         }
-
-        if(move == null) {
-            move = Commander.randomMove();
-        }
-        return move;
+        return (move == null) ? Commander.randomMove() : move;
     }
 
     /**
+     *  Get GameStatus entity by id or return null if data not found
+     *  @author jarroyes
+     *  @since 2019-01-05
      *
-     * @param id
-     * @return
+     * @param id GameStatus id
+     * @return Get GameStatus Entity or null
      */
-    public GameStatus getGameStatusById(String id) {
+    private GameStatus getGameStatusById(String id) {
         Optional<GameStatus> result = gameStatusRepository.findById(id);
-        return result.isPresent() ? result.get() : null;
+        return result.orElse(null);
     }
 
     /**
@@ -93,7 +90,7 @@ public class ShipServiceImpl implements ShipService {
      * @param objectsDetect
      * @param walls
      */
-    public void saveGameStatus(String id, int height, int width, List<ObjectDetect> objectsDetect, List<Coordinates> walls) {
+    private void saveGameStatus(String id, int height, int width, List<ObjectDetect> objectsDetect, List<Coordinates> walls) {
         try {
             GameStatus gameStatus = new GameStatus();
             gameStatus.setId(id);
@@ -108,5 +105,16 @@ public class ShipServiceImpl implements ShipService {
         } catch(Exception e) {
             log.error("Unexpected error in method saveGameStatus", e);
         }
+    }
+
+    /**
+     * Generate unique GameStatus id by gameId and playerId
+     *
+     * @param gameId The gameId provider by server
+     * @param playerId The playerId provider by server
+     * @return The unique game id for database proposal.
+     */
+    private static String getGameStatusId(String gameId, String playerId) {
+        return playerId + ":" + gameId;
     }
 }

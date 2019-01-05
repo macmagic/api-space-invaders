@@ -35,6 +35,13 @@ management:
 ---
 spring.profiles: dev
 
+logging:
+  level:
+    root: INFO
 
 
-
+---
+spring.profiles: pro
+logging:
+  level:
+    root: WARN
