@@ -19,13 +19,14 @@ public class Detector {
 
 
     /**
+     * Calculate the distance (in cells) between two objects
      *
-     * @param source
-     * @param target
-     * @return
+     * @param source The position of calculate the distance (the 0 pos)
+     * @param target The position of object to calculate the distance
+     * @return Return number of cells (integer)
      */
     public static int distanceOfTwoObjects(Coordinates source, Coordinates target) {
-        int distance = 0;
+        int distance;
         if(source.getCordX() == target.getCordX()) {
             distance = target.getCordY() - source.getCordY();
         } else if(source.getCordY() == target.getCordY()) {
@@ -43,6 +44,17 @@ public class Detector {
         return (distance < 0) ? distance * -1 : distance;
     }
 
+    /**
+     * Check if in distance between two objects is a obstacle (like wall or other enemy) and is not possible fire, etc.
+     *
+     * @author jarroyes
+     * @since 2019-01-05
+     *
+     * @param maze The maze game
+     * @param source The position 0 or source
+     * @param target The position to calculate the obstacle, target
+     * @return Return true if is a clear path or false if find and obstacle
+     */
     private static boolean isObstacleBetweenTwoObjects(String[][] maze, Coordinates source, Coordinates target) {
         int y1;
         int y2;
@@ -121,10 +133,14 @@ public class Detector {
     }
 
     /**
+     * Get the correct direction of target selected
      *
-     * @param ship
-     * @param target
-     * @return
+     * @author jarroyes
+     * @since 2019-01-05
+     *
+     * @param ship The ship with destroy the target
+     * @param target The objective to destroy
+     * @return String with move correct.
      */
     public static String directionOfTarget(Coordinates ship, Coordinates target) {
         if ((ship.getCordX() - target.getCordX()) < 0) {
@@ -139,14 +155,48 @@ public class Detector {
         return null;
     }
 
+    /**
+     * Return the potential threats in the visible area.
+     *
+     * @author jarroyes
+     * @since 2019-01-05
+     *
+     * @param maze The actual maze
+     * @param position The position of ship
+     * @param distance The distance to detect the threats
+     * @return List of objects detected.
+     */
     public static List<Coordinates> getPotentialThreats(String[][] maze, Coordinates position, int distance) {
         return detectObjectsByType(maze, position, DETECTION_ENEMIES, distance);
     }
 
+    /**
+     * Return the neutral invaders in the visible area
+     *
+     * @author jarroyes
+     * @since 2019-01-05
+     *
+     * @param maze The actual maze
+     * @param position The position of ship
+     * @param distance The distance to detect neutral invaders
+     * @return List of objects detected
+     */
     public static List<Coordinates> getNeutralInvaders(String[][] maze, Coordinates position, int distance) {
         return detectObjectsByType(maze, position, DETECTION_NEUTRAL_INVADERS, distance);
     }
 
+    /**
+     * Check in area visible with distance the objects like detect like enemies, invaders o neutral invaders.
+     *
+     * @author jarroyes
+     * @since 2019-01-05
+     *
+     * @param maze The acutal maze
+     * @param position The ship position
+     * @param type Type to detect objects
+     * @param distance Distance to check in visible area.
+     * @return List of objects detected
+     */
     private static List<Coordinates> detectObjectsByType(String[][] maze, Coordinates position, String type, int distance) {
         Set<String> targets = new HashSet<>();
 
@@ -182,7 +232,6 @@ public class Detector {
         }
         return objects;
     }
-
 
     public static Coordinates followBestEnemy(String[][] maze, Coordinates actualPosition, List<Coordinates> threats) {
 
@@ -230,7 +279,7 @@ public class Detector {
         int idx1;
         int idx2;
         Integer lastPoints = null;
-        Integer points = null;
+        Integer points;
 
         for(String move : availableMoves) {
             switch(move) {
@@ -269,63 +318,6 @@ public class Detector {
             }
         }
         return moves;
-    }
-
-    public static List<String> getRecommendedDirection(String[][] maze, Area area, Coordinates actualPosition, List<String> availableMoves) {
-        int lastPoints = 0;
-        int topPoints = 0;
-        String moveSelected;
-        int idx1;
-        int idx2;
-        int points;
-        List<String> movesOrdered = new ArrayList<>();
-
-        for(String move : availableMoves) {
-            switch(move) {
-                case Moves.DOWN:
-                    idx1 = actualPosition.getCordY()+1;
-                    idx2 = area.getCordY2();
-                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, false);
-                    break;
-                case Moves.UP:
-                    idx1 = area.getCordY1();
-                    idx2 = actualPosition.getCordY()-1;
-                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordX(), AXIS_Y, true);
-                    break;
-                case Moves.LEFT:
-                    idx1 = area.getCordX1();
-                    idx2 = actualPosition.getCordX() -1;
-                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, true);
-                    break;
-                case Moves.RIGHT:
-                    idx1 = actualPosition.getCordX() + 1;
-                    idx2 = area.getCordX2();
-                    points = checkDirection(maze, idx1, idx2, actualPosition.getCordY(), AXIS_X, false);
-                    break;
-                default:
-                    continue;
-            }
-
-
-            if(topPoints <= points) {
-                movesOrdered.add(0, move);
-                moveSelected = move;
-                topPoints = points;
-                lastPoints = points;
-            } else if(lastPoints < points) {
-                List<String> swap = new ArrayList<>();
-                swap.addAll(movesOrdered);
-                movesOrdered.add(0, swap.get(0));
-                swap.remove(0);
-                movesOrdered.add(move);
-                movesOrdered.addAll(swap);
-                swap = null;
-            } else {
-                movesOrdered.add(move);
-                lastPoints = points;
-            }
-        }
-        return movesOrdered;
     }
 
     public static int checkDirectionRank(String[][] maze, Area area, Coordinates actualPosition, String move) {
@@ -373,12 +365,12 @@ public class Detector {
      * @param idxStatic The static index
      * @param axisType The type of axis analyzed, X or Y.
      * @param reverse Indicate the loop is 1,2,3 or 3,2,1
-     * @return
+     * @return Points of direction
      */
     private static int checkDirection(String[][] maze, int idxStart, int idxFinal, int idxStatic, int axisType, boolean reverse) {
         int points = 0;
         int idx;
-        int pointsIteration = 0;
+        int pointsIteration;
 
         if(reverse) {
             for(idx = idxFinal; idx >= idxStart; idx--) {
@@ -452,40 +444,36 @@ public class Detector {
         return maze[nextPosition.getCordY()][nextPosition.getCordX()] == null || !obstacles.contains(maze[nextPosition.getCordY()][nextPosition.getCordX()]);
     }
 
-
-    /**
-     *
-     * @param maze
-     * @param area
-     * @param actualPosition
-     * @param lastMove
-     * @return
-     */
     public static boolean isLastMovementCorrect(String[][] maze, Area area, Coordinates actualPosition, String lastMove) {
-        if(lastMove.equals(Moves.RIGHT)) {
-            for(int x = actualPosition.getCordX(); x <= area.getCordX2(); x++) {
-                if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
-                    return false;
+        switch (lastMove) {
+            case Moves.RIGHT:
+                for (int x = actualPosition.getCordX(); x <= area.getCordX2(); x++) {
+                    if (maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
+                        return false;
+                    }
                 }
-            }
-        } else if(lastMove.equals(Moves.LEFT)) {
-            for(int x = actualPosition.getCordX(); x >= area.getCordX1(); x--) {
-                if(maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
-                    return false;
+                break;
+            case Moves.LEFT:
+                for (int x = actualPosition.getCordX(); x >= area.getCordX1(); x--) {
+                    if (maze[actualPosition.getCordY()][x] != null && maze[actualPosition.getCordY()][x].equals(CellType.WALL)) {
+                        return false;
+                    }
                 }
-            }
-        } else if(lastMove.equals(Moves.UP)) {
-            for(int y = actualPosition.getCordY(); y >= area.getCordY1(); y--) {
-                if(maze[y][actualPosition.getCordX()] != null &&maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
-                    return false;
+                break;
+            case Moves.UP:
+                for (int y = actualPosition.getCordY(); y >= area.getCordY1(); y--) {
+                    if (maze[y][actualPosition.getCordX()] != null && maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
+                        return false;
+                    }
                 }
-            }
-        } else if(lastMove.equals(Moves.DOWN)) {
-            for(int y = actualPosition.getCordY(); y <= area.getCordY2(); y++) {
-                if(maze[y][actualPosition.getCordX()] != null &&maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
-                    return false;
+                break;
+            case Moves.DOWN:
+                for (int y = actualPosition.getCordY(); y <= area.getCordY2(); y++) {
+                    if (maze[y][actualPosition.getCordX()] != null && maze[y][actualPosition.getCordX()].equals(CellType.WALL)) {
+                        return false;
+                    }
                 }
-            }
+                break;
         }
         return true;
     }
